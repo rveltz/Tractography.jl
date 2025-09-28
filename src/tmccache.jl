@@ -38,7 +38,7 @@ end
 function Base.show(io::IO, cache::TMCCache{𝒯y, 𝒯a, 𝒯dir, 𝒯d, 𝒯c, 𝒯all, 𝒯alld1, 𝒯alld2}) where {𝒯y, 𝒯a, 𝒯dir, 𝒯d, 𝒯c, 𝒯all, 𝒯alld1, 𝒯alld2}
     printstyled(io, "TMCCache (subset)"; bold = true, color = :cyan)
     printstyled(io, "\n ├─ size : $(round(Base.summarysize(cache)/1024^3, digits=3)) GiB"; bold = true)
-    println(io,   "\n ├─ dΩ::$Td  : ", cache.dΩ)
+    println(io,   "\n ├─ dΩ::$𝒯d  : ", cache.dΩ)
     println(io,   " ├─ Yₗₘ  : ", 𝒯y)
     println(io,   " ├─ ∂θodf : ", 𝒯alld1)
     if ~isnothing(cache.∂θodf)

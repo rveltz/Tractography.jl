@@ -1,13 +1,7 @@
 # Tractography.jl
 
-
 This Julia package implements different tractography algorithms.
 
-## 📦 Install Julia
-
-This Julia package implements different tractography algorithms.
-
-## Quickstart
 
 ## 📦 Install
 
