@@ -10,7 +10,7 @@ using Tractography
 const TG = Tractography
 
 model = TG.TMC(Δt = 0.125f0,
-            odfdata = TG.ODFData("/Users/rveltz/work/prog_gd/julia/dev/dev1/Tractography/examples/fod-FC.nii.gz"),
+            odfdata = TG.ODFData("../examples/fod-FC.nii.gz"),
             C = TG.Cone(15),
             proba_min = 0.005f0,
             )

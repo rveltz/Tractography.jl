@@ -14,7 +14,7 @@ This is a more advanced tutorial because we want to show how to apply a mask.
 import Tractography as TG
 
 model = TG.TMC(Δt = 0.125f0,
-            odfdata = TG.ODFData("/Users/rveltz/work/prog_gd/julia/dev/dev1/Tractography/examples/fod-FC.nii.gz"),
+            odfdata = TG.ODFData("../examples/fod-FC.nii.gz"),
             C = TG.Cone(15),
             proba_min = 0.005f0,
             )
@@ -39,7 +39,7 @@ We next apply a mask on the boundary of which the streamlines stop.
 
 ```@example FCUP
 using NIfTI
-mask = NIfTI.niread("/Users/rveltz/work/prog_gd/julia/dev/dev1/Tractography/examples/wm-FC.nii.gz");
+mask = NIfTI.niread("../examples/wm-FC.nii.gz");
 TG._apply_mask!(model, mask);
 ```
 

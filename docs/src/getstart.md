@@ -16,7 +16,7 @@ using Tractography
 const TG = Tractography
 
 model = TMC(Δt = 0.125f0,
-            odfdata = ODFData("/Users/rveltz/work/prog_gd/julia/dev/dev1/Tractography/examples/fod-FC.nii.gz"),
+            odfdata = ODFData("../examples/fod-FC.nii.gz"),
             )
 Nmc = 10
 seeds = rand(Float32, 6, Nmc)
@@ -31,7 +31,7 @@ This is done
 
 ```@example GS
 model = TMC(Δt = 0.125f0,
-            odfdata = ODFData("/Users/rveltz/work/prog_gd/julia/dev/dev1/Tractography/examples/fod-FC.nii.gz"),
+            odfdata = ODFData("../examples/fod-FC.nii.gz"),
             )
 ```
 
@@ -65,7 +65,7 @@ It is often better to cache some data when computing batches of streamlines. Thi
 
 ```@example GS
 model = TMC(Δt = 0.125f0,
-            odfdata = ODFData("/Users/rveltz/work/prog_gd/julia/dev/dev1/Tractography/examples/fod-FC.nii.gz"),
+            odfdata = ODFData("../examples/fod-FC.nii.gz"),
             )
 Nmc = 10
 seeds = rand(Float32, 6, Nmc)
