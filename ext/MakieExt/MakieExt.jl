@@ -1,5 +1,5 @@
 module MakieExt
-    using Makie, Tractography, DocStringExtensions, LinearAlgebra, StaticArrays
+    using Makie, Tractography, DocStringExtensions, LinearAlgebra, StaticArrays, Accessors
     import Tractography: add_frame!,
                            plot_streamlines!, 
                            plot_odf!,

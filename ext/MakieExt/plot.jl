@@ -1,4 +1,5 @@
-using QHull
+using Accessors, GeometryBasics
+import Quickhull
 
 function _correct_normals!(pts, faces)
     @assert size(faces)[2] == 3
@@ -16,13 +17,15 @@ end
 function _get_sphere_fibonacci(N, 𝒯::DataType = Float64)
     angles = Tractography.fibonacci_sampling(N, 𝒯)
     directions = [spherical_to_euclidean(d...) for d in angles]
+    hull = Quickhull.quickhull(directions)
+
+    faces = mapreduce(x-> [x.data...], hcat, Quickhull.facets(hull))'
+    _correct_normals!(directions, faces)
+
     pts_h = Matrix(reduce(hcat, [[p...] for p in directions])')
-    hull = chull(pts_h)
-    _correct_normals!(directions, hull.simplices)
-    return pts_h, hull.simplices, angles
+    return pts_h, faces, angles
 end
 ####################################################################################################
-using Accessors, GeometryBasics
 
 function add_frame!(ax; x0 = zeros(3), r = 1, k...)
     lines!(ax, Point3.([x0, x0 .+ [r, 0, 0]]); color = :red, k...)
