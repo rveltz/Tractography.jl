@@ -16,7 +16,7 @@ using Tractography
 const TG = Tractography
 
 model = TMC(Δt = 0.125f0,
-            odfdata = ODFData("../examples/fod-FC.nii.gz"),
+            odfdata = ODFData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
             )
 Nmc = 10
 seeds = rand(Float32, 6, Nmc)

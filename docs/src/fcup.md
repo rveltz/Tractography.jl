@@ -14,7 +14,7 @@ This is a more advanced tutorial because we want to show how to apply a mask.
 import Tractography as TG
 
 model = TG.TMC(Δt = 0.125f0,
-            odfdata = TG.ODFData("../examples/fod-FC.nii.gz"),
+            odfdata = TG.ODFData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
             C = TG.Cone(15),
             proba_min = 0.005f0,
             )
