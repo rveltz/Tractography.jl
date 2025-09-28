@@ -5,11 +5,11 @@ This Julia package implements different tractography algorithms.
 
 ## 📦 Install Julia
 
-The easiest way to install Julia is to use [juliaup](https://github.com/JuliaLang/juliaup).
+This Julia package implements different tractography algorithms.
 
 ## Quickstart
 
-### 📦 Install
+## 📦 Install
 
 To install the package, run the following command in Julia package manager (press `]` in the REPL)
 
@@ -17,13 +17,6 @@ To install the package, run the following command in Julia package manager (pres
 pkg> add https://github.com/tractography.jl
 ```
 
-### Debug mode
-
-By activating debug mode, useful information is provided to the user.
-
-```julia
-julia> ENV["JULIA_DEBUG"] = Tractography
-```
 
 ## Related softwares
 

@@ -2,5 +2,6 @@ using Tractography
 using Test
 
 @testset "Tractography.jl" begin
-    # Write your tests here.
+    include("basic-sampling.jl")
+    include("cache.jl")
 end
