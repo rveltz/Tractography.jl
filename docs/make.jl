@@ -31,3 +31,7 @@ makedocs(
 	],
 	remotes  = nothing,
 	)
+
+deploydocs(;
+	repo = "github.com/rveltz/Tractography.jl.git",
+	push_preview=true, target="build", devbranch="main")
