@@ -1,5 +1,11 @@
 # Tractography.jl
 
+| **Documentation** | **Build Status** | **Coverage** | **Version** |
+| :-: | :-: | :-: | :-: |
+|  | [![Build status](https://github.com/rveltz/Tractography.jl/workflows/CI/badge.svg)](https://github.com/rveltz/Tractography.jl/actions) |   |    |
+
+
+
 This Julia package implements different tractography algorithms.
 
 
