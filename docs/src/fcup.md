@@ -39,7 +39,7 @@ We next apply a mask on the boundary of which the streamlines stop.
 
 ```@example FCUP
 using NIfTI
-mask = NIfTI.niread("../examples/wm-FC.nii.gz");
+mask = NIfTI.niread((@__DIR__) * "/../../examples/wm-FC.nii.gz");
 TG._apply_mask!(model, mask);
 ```
 

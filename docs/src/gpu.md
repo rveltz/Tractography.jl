@@ -13,7 +13,7 @@ const TG = Tractography
 
 # define the model for TMC
 model = TMC(Δt = 0.125f0,
-            odfdata = ODFData("../examples/fod-FC.nii.gz"),
+            odfdata = ODFData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
             C = Cone(45),
             proba_min = 0.005f0,
             )
