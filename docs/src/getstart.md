@@ -49,7 +49,7 @@ alg = CSD()
 ```
 
 ## Step 4: Sample the streamlines
-```julia
+```@example GS
 streamlines, tract_length = sample(model, alg, seeds);
 ```
 

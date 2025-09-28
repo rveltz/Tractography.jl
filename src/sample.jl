@@ -4,7 +4,7 @@ function _init_fibonacci_sh(model::TMC{𝒯}, n_sphere) where {𝒯}
     directions = [spherical_to_euclidean(d[1], d[2]) for d in angles]
     n_angles = length(angles)
     Yₗₘ = get_vector_of_sh(angles, lmax)
-    cone = isnothing(model.C) ? nothing : [𝒯(model.C(d1, d2)) for d1 in directions, d2 in directions]
+    cone = isnothing(model.cone) ? nothing : [𝒯(model.cone(d1, d2)) for d1 in directions, d2 in directions]
     TMCCache(;n_sphere = n_angles, Yₗₘ, dΩ = 𝒯(4pi/n_angles), angles, lmax, cone, directions)
 end
 

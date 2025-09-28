@@ -21,7 +21,7 @@ Spherical harmonics evaluation based on Fibonacci sampling. All ODF are pre-comp
     Requires a relatively large memory!
 
 ## Details
-If you have `na` angles for sampling the unit sphere and the data is of size `(nx,ny,nz,nsph)`, it yields a matrix of dimensions `(nx,ny,nz,na)`.
+If you have `na` angles for sampling the unit sphere and the data is of size `(nx, ny, nz, nsph)`, it yields a matrix of dimensions `(nx, ny, nz, na)`.
 
 See also `FibonacciSH`
 """
@@ -77,7 +77,7 @@ This ensures that the angle in degrees between to consecutive streamline directi
 The implemented condition is for `cn = Cone(angle)`
 
 ```
-(cn::Cone)(d1, d2) = dot(d1, d2) > cos(pi/180 * cn.alpha)
+(cn::Cone)(d1, d2) = dot(d1, d2) > cosd(cn.alpha)
 ```
 
 ## Fields
@@ -88,11 +88,11 @@ $(TYPEDFIELDS)
 
 `Cone(angle)`
 """
-struct Cone{T <: Real}
+struct Cone{𝒯 <: Real}
     "half section angle in degrees"
-    alpha::T
+    alpha::𝒯
 end
-(cn::Cone)(d1, d2) = dot(d1, d2) > cos(pi/180 * cn.alpha)
+(cn::Cone)(d1, d2) = dot(d1, d2) > cosd(cn.alpha)
 
 """
 $(TYPEDEF)
@@ -105,7 +105,7 @@ $(TYPEDFIELDS)
 # Methods
 - `_apply_mask!(model, mask)` apply a mask to the raw SH tensor. See its doc string.
 - `_getdata(model)` return the fodf data associated with the TMC.
-- `size(model)` return `nx,ny,nz,nt`.
+- `size(model)` return `nx, ny, nz, nt`.
 - `eltype(model)` return the scalar type of the data (default Float64).
 - `get_lmax(model)` return the max `l` coordinate in of spherical harmonics.
 
@@ -115,23 +115,23 @@ $(TYPEDFIELDS)
 - `TMC(Δt = 0.1, proba_min = 0.)` for a Float64 TMC. You need to specify both fields `Δt` and `proba_min`
 - `TMC(odfdata = rand(10,10,10,45))` for custom ODF
 """
-@with_kw_noshow struct TMC{T, Talg <: AbstractEvaluation, Td, TC, Tmol}
+@with_kw_noshow struct TMC{𝒯, 𝒯alg <: AbstractEvaluation, 𝒯d, 𝒯C, 𝒯mol}
     "Step size of the TMC."
-    Δt::T = 0.1f0
+    Δt::𝒯 = 0.1f0
     "Spherical harmonics evaluation algorithm. Can be `FibonacciSH(), ComputeAllODF()`."
-    evaluation_algo::Talg = ComputeAllODF()
+    evaluation_algo::𝒯alg = ComputeAllODF()
     "ODF data from nifti file. Must be the list of ODF in the base of spherical harmonics. Hence, it should be an (abstract) 4d array."
-    odfdata::Td = nothing
-    "Cone function to restrict angle diffusion. You can use a `Cone` or a custom function `(d1,d2) -> return_a_boolean`."
-    C::TC = Cone(90)
+    odfdata::𝒯d = nothing
+    "Cone function to restrict angle diffusion. You can use a `Cone` or a custom function `(d1, d2) -> return_a_boolean`."
+    cone::𝒯C = Cone(90f0)
     "Probability below which we stop tracking."
-    proba_min::T = 0.0f0
+    proba_min::𝒯 = 0.0f0
     "Mollifier, used to make the fodf non negative. During odf evaluation, we effectively use `mollifier(fodf[i,j,k,angle])`."
-    mollifier::Tmol = default_mollifier
+    mollifier::𝒯mol = default_mollifier
 end
 @inline getdata(model::TMC) = model.odfdata
 Base.size(model::TMC) = size(getdata(model))
-Base.eltype(model::TMC{T}) where T = T
+Base.eltype(model::TMC{𝒯}) where 𝒯 = 𝒯
 @inline get_lmax(model::TMC) = get_lmax(getdata(model))
 default_mollifier(x) = max(0, x)
 get_range(model::TMC) = get_range(getdata(model))
@@ -141,8 +141,8 @@ function Base.show(io::IO, model::TMC)
     printstyled(io, "TMC with elype ", eltype(model), bold = true, color = :cyan)
     println(io, "\n ├─ Δt = ", model.Δt)
     println(io, " ├─ minimal probability = ", model.proba_min)
-    if model.C isa Cone
-        println(io, " ├─ cone                = ", model.C)
+    if model.cone isa Cone
+        println(io, " ├─ cone                = ", model.cone)
     end
     if model isa TMC
         println(io, " ├─ mollifier           = ", model.mollifier)
@@ -162,7 +162,7 @@ end
 """
 $(SIGNATURES)
 
-Multiply the mask which is akin to a matrix of `Bool` with same size as the data stored in `model`. Basically, the mask `mask[ix,iy,iz]` ensures whether the voxel `(ix,iy,iz)` is discarded or not.
+Multiply the mask which is akin to a matrix of `Bool` with same size as the data stored in `model`. Basically, the mask `mask[ix, iy, iz]` ensures whether the voxel `(ix, iy, iz)` is discarded or not.
 
 # Arguments
 
@@ -174,7 +174,7 @@ function _apply_mask!(model, mask)
         nx, ny, nz, nsh = size(model)
         data = _get_array(getdata(model))
         for k = 1:nsh
-            @tturbo data[:,:,:,k] .*= mask
+            @tturbo data[:, :, :, k] .*= mask
         end
     end
 end
@@ -197,7 +197,7 @@ function save_streamlines(filename::String, tractogram::AbstractArray{T, 3}, tra
     end
     nib = pyimport("nibabel")
     np = pyimport("numpy")
-    streamlines = tracto = [tractogram[:, 1:tracto_length[k], k]' for k in axes(tractogram,3) if tracto_length[k]>2]
+    streamlines = tracto = [tractogram[:, 1:tracto_length[k], k]' for k in axes(tractogram, 3) if tracto_length[k] > 2]
     @info "Saving in file: " filename
     nib.streamlines.TckFile(nib.streamlines.Tractogram(streamlines, affine_to_rasmm = np.eye(4))).save(filename)
 end

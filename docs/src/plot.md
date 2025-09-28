@@ -11,7 +11,7 @@ const TG = Tractography
 
 model = TG.TMC(Δt = 0.125f0,
             odfdata = TG.ODFData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
-            C = TG.Cone(15),
+            cone = TG.Cone(15f0),
             proba_min = 0.005f0,
             )
 ```

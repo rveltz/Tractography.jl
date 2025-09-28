@@ -4,7 +4,7 @@ const TG = Tractography
 
 model = TMC(Δt = 0.125f0,
             odfdata = ODFData("../examples/fod-FC.nii.gz"),
-            C = Cone(45),
+            cone = Cone(45f0),
             )
 
 alg = Deterministic()
