@@ -1,14 +1,15 @@
-# Tractography
+# Tractography.jl
 
-`Tractography.jl` is a Julia package that implements different tractography algorithms.
 
-## Install Julia
+This Julia package implements different tractography algorithms.
+
+## 📦 Install Julia
 
 The easiest way to install Julia is to use [juliaup](https://github.com/JuliaLang/juliaup).
 
 ## Quickstart
 
-### Install
+### 📦 Install
 
 To install the package, run the following command in Julia package manager (press `]` in the REPL)
 
