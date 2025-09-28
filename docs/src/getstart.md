@@ -27,7 +27,7 @@ size(streamlines)
 
 ## Step 1: Define a TMC
 
-This is done 
+We define a Tractography Markov Chain (TMC) model as follows:
 
 ```@example GS
 model = TMC(Δt = 0.125f0,
@@ -38,7 +38,7 @@ model = TMC(Δt = 0.125f0,
 ## Step 2: Define the seeds
 
 ```@example GS
-Nmc = 10
+Nmc = 10 # Monte Carlo sample
 seeds = rand(Float32, 6, Nmc)
 ```
 
