@@ -5,12 +5,12 @@ const TG = Tractography
 # define the model for TMC
 model = TMC(Δt = 0.125f0,
             odfdata = ODFData((@__DIR__) * &quot;/../../examples/fod-FC.nii.gz&quot;),
-            cone = Cone(45),
+            cone = Cone(45f0),
             proba_min = 0.005f0,
             )</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi"><span class="sgr36"><span class="sgr1">TMC with elype Float32</span></span>
  ├─ Δt = 0.125
  ├─ minimal probability = 0.005
- ├─ cone                = Cone{Int64}(45)
+ ├─ cone                = Cone{Float32}(45.0f0)
  ├─ mollifier           = default_mollifier
  ├─ evaluation of SH    = ComputeAllODF()
  └─ data : ⋯
@@ -23,22 +23,22 @@ Nt = 2000
 seeds = cu(zeros(6, Nmc));
 seeds[1:3, :] .= [-13.75, 26.5, 8] .+ 0.1  .* randn(3, Nmc) .|&gt; Float32 |&gt; CuArray;
 seeds[4, :] .= 1
-tract_length = zeros(Int32, Nmc)</code></pre><p>we next define a buffer to hold the streamlines</p><pre><code class="language-julia hljs">streamlines_gpu = cu(zeros(Float32, 3, Nt, Nmc), unified = true)</code></pre><h1 id="Define-the-computation-cache"><a class="docs-heading-anchor" href="#Define-the-computation-cache">Define the computation cache</a><a id="Define-the-computation-cache-1"></a><a class="docs-heading-anchor-permalink" href="#Define-the-computation-cache" title="Permalink"></a></h1><p>Because we can compute the streamlines in batches for the same TMC, it is best to cache some data for this</p><pre><code class="language-julia hljs"># we precompute the cache which is heavy otherwise each call to sample
+tract_length = zeros(UInt32, Nmc)</code></pre><p>we next define a buffer to hold the streamlines</p><pre><code class="language-julia hljs">streamlines_gpu = cu(zeros(Float32, 3, Nt, Nmc), unified = true)</code></pre><h1 id="Define-the-computation-cache"><a class="docs-heading-anchor" href="#Define-the-computation-cache">Define the computation cache</a><a id="Define-the-computation-cache-1"></a><a class="docs-heading-anchor-permalink" href="#Define-the-computation-cache" title="Permalink"></a></h1><p>Because we can compute the streamlines in batches for the same TMC, it is best to cache some data for this</p><pre><code class="language-julia hljs"># we precompute the cache which is heavy otherwise each call to sample
 # will recompute it
-cache_g = TG.init(model, TG.ThreadedCache(CSD()); 
+cache_g = TG.init(model, Probabilistic(); 
                   𝒯ₐ = CuArray,
                   n_sphere = 400);</code></pre><h1 id="Compute-the-streamlines"><a class="docs-heading-anchor" href="#Compute-the-streamlines">Compute the streamlines</a><a id="Compute-the-streamlines-1"></a><a class="docs-heading-anchor-permalink" href="#Compute-the-streamlines" title="Permalink"></a></h1><p>The following takes 0.5s on a A100.</p><pre><code class="language-julia hljs"># this setup works for a GPU with 40GiB
-# it yields 1e6/sec streamlines for CSD
-# and 2.2e6/sec streamlines for DET
-CUDA.@time TG._sample!(
+# it yields 1e6/sec streamlines for Probabilistic
+# and 2.2e6/sec streamlines for Deterministic
+CUDA.@time TG.sample!(
             streamlines_gpu,
             tract_length,
             model,
             cache_g,
-            Threaded(CSD()),
-            # Threaded(Deterministic()),
+            Probabilistic(),
+            # Deterministic(),
             seeds;
             # maxodf_start = true,
             # reverse_direction = true,
             gputhreads = 1024,
-            );</code></pre><div class="admonition is-success" id="batches-7abda6e9d3ca4f0f"><header class="admonition-header">batches<a class="admonition-anchor" href="#batches-7abda6e9d3ca4f0f" title="Permalink"></a></header><div class="admonition-body"><p>This can be called many times, for example after updating the seeds.</p></div></div><p>So far the streamlines <code>streamlines_gpu</code> are on the GPU. We can retrieve them at zero cost on the CPU</p><pre><code class="language-julia hljs">streamlines = @time unsafe_wrap(Array, streamlines_gpu);</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../fcup/">« FCUP</a><a class="docs-footer-nextpage" href="../algos/">Algorithms »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Monday 29 September 2025 10:02">Monday 29 September 2025</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+            );</code></pre><div class="admonition is-success" id="batches-7abda6e9d3ca4f0f"><header class="admonition-header">batches<a class="admonition-anchor" href="#batches-7abda6e9d3ca4f0f" title="Permalink"></a></header><div class="admonition-body"><p>This can be called many times, for example after updating the seeds.</p></div></div><p>So far the streamlines <code>streamlines_gpu</code> are on the GPU. We can retrieve them at zero cost on the CPU</p><pre><code class="language-julia hljs">streamlines = @time unsafe_wrap(Array, streamlines_gpu);</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../fcup/">« FCUP</a><a class="docs-footer-nextpage" href="../algos/">Algorithms »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.14.1 on <span class="colophon-date" title="Monday 29 September 2025 12:05">Monday 29 September 2025</span>. Using Julia version 1.11.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
