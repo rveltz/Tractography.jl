@@ -58,7 +58,7 @@ Deterministic
 ```
 
 ```@docs
-CSD
+Probabilistic
 ```
 
 ```@docs

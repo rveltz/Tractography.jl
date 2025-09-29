@@ -31,7 +31,3 @@ The examples which follow have not **all** been written with the goal of perform
 However, note that this code was used to sample 500 000 000 000 streamlines on GPU for a recent publication.
 
 - Yanis Aeschlimann, Samuel Deslauriers-Gauthier, Romain Veltz. **GPU tractography: What can we learn from half a trillion streamlines?** International Society for Tractography Conference - IST 2025, Oct 2025, Bordeaux (France), France. [⟨hal-05272265⟩](https://inria.hal.science/hal-05272265v1)
-
-## Main features
-
-To come...

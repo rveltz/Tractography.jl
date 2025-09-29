@@ -20,7 +20,7 @@ model = TMC(Δt = 0.125f0,
             )
 Nmc = 10
 seeds = rand(Float32, 6, Nmc)
-alg = CSD()
+alg = Probabilistic()
 streamlines, tract_length = sample(model, alg, seeds);
 size(streamlines)
 ```
@@ -45,7 +45,7 @@ seeds = rand(Float32, 6, Nmc)
 ## Step 3: Chose a sample algorithm
 
 ```@example GS
-alg = CSD()
+alg = Probabilistic()
 ```
 
 ## Step 4: Sample the streamlines
@@ -71,7 +71,7 @@ Nmc = 10
 seeds = rand(Float32, 6, Nmc)
 streamlines = zeros(Float32, 6, 20, Nmc)
 tract_length = zeros(UInt32, Nmc)
-alg = CSD()
+alg = Probabilistic()
 cache = TG.init(model, alg)
 # this can be called repeatedly after updating seeds for example
 TG.sample!(streamlines, tract_length, model, cache, alg, seeds);

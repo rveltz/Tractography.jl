@@ -10,7 +10,7 @@ module Tractography
     # sampling method of FODF
     export FibonacciSH, ComputeAllODF
     export ODFData, TMC, Cone, sample_odf, sample, init
-    export CSD, Rejection, Deterministic, Connectivity
+    export Probabilistic, Rejection, Deterministic, Connectivity
     export save_streamlines
 
     # plotting

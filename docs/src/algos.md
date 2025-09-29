@@ -30,9 +30,9 @@ $$\bm x_{i+1} = \bm x_i + \Delta s \bm u_i$$
 
 $$\bm u_{i+1} = \argmax g(\bm x_i, \cdot)$$
 
-## 2. Cumulative sum distribution
+## 2. Probabilistic
 
-The algorithm `alg = CSD()` (see [`Tractography.CSD`](@ref)) implements the following situation. We compute a sequence $(\bm x_i, \bm u_i)_i$ such that
+The algorithm `alg = Probabilistic()` (see [`Tractography.Probabilistic`](@ref)) implements the following situation. We compute a sequence $(\bm x_i, \bm u_i)_i$ such that
 
 $$\bm x_{i+1} = \bm x_i + \Delta s \bm u_i$$
 

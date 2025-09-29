@@ -48,9 +48,9 @@ Tractography sampling performed with the cumulative sum distribution. Can be use
 
 # Constructor
 
-`CSD()`
+`Probabilistic()`
 """
-struct CSD <: AbstractNotPureRejectionSampler end
+struct Probabilistic <: AbstractNotPureRejectionSampler end
 
 """
 $(TYPEDEF)
@@ -66,7 +66,7 @@ Tractography based sampling of Connectivity.
 Do not compute the full streamline, only return first/last points and streamlines lengths.
 
 ## Constructor example
- - `Connectivity(CSD())`
+ - `Connectivity(Probabilistic())`
 """
 struct Connectivity{Talg} <: AbstractSampler
     alg::Talg

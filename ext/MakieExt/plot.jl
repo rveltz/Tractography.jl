@@ -201,7 +201,7 @@ function plot_odf!(ax, model::TMC{T} ;
     ni = getdata(model)
     nx, ny, nz, nt = size(ni)
     odf = zeros(Float32, nt)
-    cache = _init((@set model.evaluation_algo = Tractography.PlottingSH()), CSD(); n_sphere)
+    cache = _init((@set model.evaluation_algo = Tractography.PlottingSH()), Probabilistic(); n_sphere)
     Yₗₘ = Float32.(cache.Yₗₘ)
     F = zeros(Float32, length(cache.angles))
     radius = Float32(radius)

@@ -47,7 +47,7 @@ Because we can compute the streamlines in batches for the same TMC, it is best t
 ```julia
 # we precompute the cache which is heavy otherwise each call to sample
 # will recompute it
-cache_g = TG.init(model, CSD(); 
+cache_g = TG.init(model, Probabilistic(); 
                   𝒯ₐ = CuArray,
                   n_sphere = 400);
 ```
@@ -58,14 +58,14 @@ The following takes 0.5s on a A100.
 
 ```julia
 # this setup works for a GPU with 40GiB
-# it yields 1e6/sec streamlines for CSD
+# it yields 1e6/sec streamlines for Probabilistic
 # and 2.2e6/sec streamlines for Deterministic
 CUDA.@time TG.sample!(
             streamlines_gpu,
             tract_length,
             model,
             cache_g,
-            CSD(),
+            Probabilistic(),
             # Deterministic(),
             seeds;
             # maxodf_start = true,

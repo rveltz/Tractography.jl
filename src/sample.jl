@@ -44,7 +44,7 @@ Sample the TMC `model`.
 
 ## Arguments
 - `model::TMC`
-- `alg` sampling algorithm, `Deterministic, CSD, Diffusion, etc`.
+- `alg` sampling algorithm, `Deterministic, Probabilistic, Diffusion, etc`.
 - `seeds` matrix of size `6 x Nmc` where `Nmc` is the number of Monte-Carlo simulations to be performed.
 - `mask = nothing` matrix of boolean where to stop computation. See also `_apply_mask`.
 

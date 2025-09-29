@@ -10,7 +10,7 @@ Create a cache for computing streamlines in batches. This is interesting for use
     Use it with `sample!`
 
 # Arguments
-- `alg` sampling algorithm, `Deterministic, CSD, Diffusion`, etc.
+- `alg` sampling algorithm, `Deterministic, Probabilistic, Diffusion`, etc.
 - `n_sphere::Int = 400` number of points to discretize the sphere on which we evaluate the spherical harmonics.
 - `𝒯ₐ = Array{𝒯}` specify the type of the arrays in the cache. If passed a GPU array type like `CuArray` for CUDA, the sampling occurs on the GPU. Leave it for computing on CPU.
 """
@@ -44,7 +44,7 @@ Sample the TMC `model` inplace by overwriting `result`. This requires very littl
 - `streamlines` array with shape `3 x nt x Nmc`. `nt` is maximal length of each streamline. `Nmc` is the number of Monte-Carlo simulations to be performed.
 - `streamlines_length` length of the streamlines
 - `model::TMC` 
-- `alg` sampling algorithm, `Deterministic, CSD, Diffusion, etc`.
+- `alg` sampling algorithm, `Deterministic, Probabilistic, Diffusion, etc`.
 - `seeds` matrix of size `6 x Nmc` where `Nmc` is the number of Monte-Carlo simulations to be performed.
 
 ## Optional arguments
@@ -73,7 +73,7 @@ function sample!(streamlines,
     launch_kernel(nthreads;
                     streamlines,
                     streamlines_length,
-                    alg = alg,
+                    alg,
                     seeds,
                     odf = cache.odf,
                     angles = cache.angles,
@@ -152,7 +152,7 @@ end
 KA.@kernel inbounds=false function _sample_kernel!(
                             streamlines::AbstractArray{𝒯, 3},
                             streamlines_length::AbstractArray{UInt32, 1},
-                            @Const(alg::Union{CSD, Deterministic}),
+                            @Const(alg::Union{Probabilistic, Deterministic}),
                             @Const(seeds::AbstractMatrix{𝒯}),
                             @Const(fodf::AbstractArray{𝒯, 4}),
                             @Const(angles::AbstractArray{𝒯, 2}),
@@ -253,7 +253,7 @@ KA.@kernel inbounds=false function _sample_kernel!(
                 if alg isa DeterministicSampler
                     ind_u = ind_max
                 else
-                    # cumulative sampling distribution (CSD)
+                    # cumulative sampling distribution (Probabilistic)
                     # only if probabilities large enough
                     # t = _rand[nₙₘ, iₜ] * conditioned_proba
                     t = rand(𝒯) * conditioned_proba
