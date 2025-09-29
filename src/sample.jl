@@ -5,11 +5,11 @@ function _init_fibonacci_sh(model::TMC{𝒯}, n_sphere) where {𝒯}
     n_angles = length(angles)
     Yₗₘ = get_vector_of_sh(angles, lmax)
     cone = isnothing(model.cone) ? nothing : [𝒯(model.cone(d1, d2)) for d1 in directions, d2 in directions]
-    TMCCache(;n_sphere = n_angles, Yₗₘ, dΩ = 𝒯(4pi/n_angles), angles, lmax, cone, directions)
+    TMCCache(; n_sphere = n_angles, Yₗₘ, dΩ = 𝒯(4pi / n_angles), angles, lmax, cone, directions)
 end
 
 # for plotting
-function _init(model::TMC{𝒯, FibonacciSH},
+function _init(model::TMC{𝒯, PlottingSH},
                 alg::AbstractNotPureRejectionSampler; 
                 n_sphere = 400) where 𝒯
     _init_fibonacci_sh(model, n_sphere)
@@ -33,7 +33,7 @@ function _build_cache_from_Y_matrix(model::TMC{𝒯}, cache, Ysv) where 𝒯
     odf_v  = @time_debug "Mat-Vec:" ni_v * Ysv'; # vector view
     odf = reshape(odf_v, nx, ny, nz, na);
     @time_debug "Mollifier:" @tturbo @. odf = model.mollifier(odf)
-    @reset cache.odf = permutedims(odf, (4,1,2,3))
+    @reset cache.odf = permutedims(odf, (4, 1, 2, 3))
     return cache
 end
 

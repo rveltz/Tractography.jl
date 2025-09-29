@@ -14,7 +14,7 @@ const TG = Tractography
 # define the model for TMC
 model = TMC(Δt = 0.125f0,
             odfdata = ODFData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
-            cone = Cone(45),
+            cone = Cone(45f0),
             proba_min = 0.005f0,
             )
 ```
@@ -31,7 +31,7 @@ Nt = 2000
 seeds = cu(zeros(6, Nmc));
 seeds[1:3, :] .= [-13.75, 26.5, 8] .+ 0.1  .* randn(3, Nmc) .|> Float32 |> CuArray;
 seeds[4, :] .= 1
-tract_length = zeros(Int32, Nmc)
+tract_length = zeros(UInt32, Nmc)
 ```
 
 we next define a buffer to hold the streamlines
@@ -47,7 +47,7 @@ Because we can compute the streamlines in batches for the same TMC, it is best t
 ```julia
 # we precompute the cache which is heavy otherwise each call to sample
 # will recompute it
-cache_g = TG.init(model, TG.ThreadedCache(CSD()); 
+cache_g = TG.init(model, CSD(); 
                   𝒯ₐ = CuArray,
                   n_sphere = 400);
 ```
@@ -59,14 +59,14 @@ The following takes 0.5s on a A100.
 ```julia
 # this setup works for a GPU with 40GiB
 # it yields 1e6/sec streamlines for CSD
-# and 2.2e6/sec streamlines for DET
-CUDA.@time TG._sample!(
+# and 2.2e6/sec streamlines for Deterministic
+CUDA.@time TG.sample!(
             streamlines_gpu,
             tract_length,
             model,
             cache_g,
-            Threaded(CSD()),
-            # Threaded(Deterministic()),
+            CSD(),
+            # Deterministic(),
             seeds;
             # maxodf_start = true,
             # reverse_direction = true,

@@ -15,6 +15,13 @@ struct FibonacciSH <: AbstractEvaluation end
 """
 $(TYPEDEF)
 
+Set up for plotting ODF.
+"""
+struct PlottingSH <: AbstractEvaluation end
+
+"""
+$(TYPEDEF)
+
 Spherical harmonics evaluation based on Fibonacci sampling. All ODF are pre-computed once. Their positivity is enforced with a `max(0,⋅)` or a mollifier. 
 
 !!! danger 

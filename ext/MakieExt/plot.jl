@@ -107,12 +107,11 @@ function analyse_streamline(model,
                             show_cone = false,
                             n_voxels = 25,
                             k...)
-    voxels = [get_voxel_gpu(model.odfdata.transform, streamlines[1:3,i,ind_stream]) for i in axes(streamlines,2)]
-    # voxels = [Int.(streamlines[7:9,i,ind_stream]) for i in axes(streamlines,2)]
+    voxels = [get_voxel_gpu(model.odfdata.transform, streamlines[1:3, i, ind_stream]) for i in axes(streamlines, 2)]
     u_voxels = unique(voxels)
     Ig = find_consecutive_equal_groups(voxels); Ig = Ig[1:min(n_voxels, length(Ig))]
     Lm = length(Ig)
-    rows, cols = ceil(Lm/5), 5
+    rows, cols = ceil(Lm / 5), 5
 
     fig = Figure(size = (1000, 2000))
     set_theme!(theme_black(), textcolor = :white)
@@ -202,7 +201,7 @@ function plot_odf!(ax, model::TMC{T} ;
     ni = getdata(model)
     nx, ny, nz, nt = size(ni)
     odf = zeros(Float32, nt)
-    cache = _init((@set model.evaluation_algo = FibonacciSH()), CSD(); n_sphere)
+    cache = _init((@set model.evaluation_algo = Tractography.PlottingSH()), CSD(); n_sphere)
     Yₗₘ = Float32.(cache.Yₗₘ)
     F = zeros(Float32, length(cache.angles))
     radius = Float32(radius)
