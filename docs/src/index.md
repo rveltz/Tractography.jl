@@ -26,7 +26,7 @@ In Julia, the present package seems to be the only one focused on tractography.
 
 ## A word on performance
 
-The examples which follow have not **all** been written with the goal of performance but rather simplicity (for now).
+The examples which follow have not **all** been written with the goal of performance but rather simplicity.
 
 However, note that this code was used to sample 500 000 000 000 streamlines on GPU for a recent publication.
 

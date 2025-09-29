@@ -10,8 +10,12 @@ makedocs(
     Base.get_extension(Tractography, :MakieExt) :
     Tractography.MakieExt],
 	doctest = false,
+	warnonly = true,
 	sitename = "Tractography in Julia",
-	format = Documenter.HTML(edit_link = "master", collapselevel = 1),
+	format = Documenter.HTML(
+		edit_link = "master", 
+		collapselevel = 1
+	),
 	# format = Documenter.LaTeX(),
 	warnonly = true,
 	draft = false,
@@ -29,9 +33,11 @@ makedocs(
 		"Plotting" => "plot.md",
 		"Library" => "library.md"
 	],
-	remotes  = nothing,
+	repo = Documenter.Remotes.GitHub("rveltz", "Tractography.jl"),
 	)
 
 deploydocs(;
 	repo = "github.com/rveltz/Tractography.jl.git",
-	push_preview=true, target="build", devbranch="main")
+	push_preview = true, 
+	target = "build", 
+	devbranch = "main")
