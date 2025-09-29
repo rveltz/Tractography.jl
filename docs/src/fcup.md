@@ -61,11 +61,20 @@ end
 
 ```@example FCUP
 streamlines, tract_length = TG.sample(model, TG.Deterministic(), seeds; nt = 1000);
-nothing
+println("Dimension of computed streamlines = ", size(streamlines))
 ```
 
 ```@example FCUP
 f, sc = @time TG.plot_odf(model; n_sphere = 500, radius = 0.3, st = 2);
 TG.plot_streamlines!(sc, streamlines[1:3, 1:1:end, 1:10:Nmc])
 f
+```
+
+# Compute the connections
+
+When computing structural connectivity, we don't need to record the entire streamline but only its extremities.
+
+```@example FCUP
+streamlines, tract_length = TG.sample(model, TG.Connectivity(TG.Deterministic()), seeds; nt = 1000);
+println("Dimension of computed streamlines = ", size(streamlines))
 ```

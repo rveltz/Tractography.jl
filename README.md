@@ -3,7 +3,7 @@
 
 <img src="inria.png" alt="Logo" align="right" width="120" />
 
-| **Documentation** | **Build Status** | **Coverage** | **Version** |
+| **Documentation links:** | **Build status** | **Coverage** | **Version** |
 | :-: | :-: | :-: | :-: |
 | [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![Build status](https://github.com/rveltz/Tractography.jl/workflows/CI/badge.svg)](https://github.com/rveltz/Tractography.jl/actions) |   |    |
 
@@ -12,7 +12,7 @@
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-purple.svg
 [docs-dev-url]: https://rveltz.github.io/Tractography.jl/dev/
 
-This Julia package implements different tractography algorithms.
+This Julia package implements different tractography algorithms on CPU / GPU.
 
 
 ## 📦 Install

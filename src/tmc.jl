@@ -62,8 +62,8 @@ struct Deterministic <: DeterministicSampler end
 """
 $(TYPEDEF)
 
-Tractography based sampling of Connectivity. 
-Do not compute the full streamline, only return first/last points and streamlines lengths.
+Tractography based sampling of structural connectivity. 
+Do not compute the full streamline but only return the first/last points and the streamlines lengths. This allows to compute many more streamlines on GPU where memory is limited.
 
 ## Constructor example
  - `Connectivity(Probabilistic())`

@@ -1,6 +1,6 @@
 # Tractography.jl
 
-This Julia package aims at tractography by taking advantage of parallel and specific hardwares (*e.g.* GPU). Tractography aims at reconstructing white matter fiber bundles using diffusion-weighted MRI. It thus aim to study the structural connectivity of the brain.
+This Julia package aims at tractography by taking advantage of **parallel and specific hardwares (*e.g.* GPU).** Tractography aims at reconstructing white matter fiber bundles using diffusion-weighted MRI. It thus aim to study the structural connectivity of the brain.
 
 ![](brain.png)
 
