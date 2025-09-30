@@ -31,7 +31,7 @@ Nt = 2000
 seeds = cu(zeros(6, Nmc));
 seeds[1:3, :] .= [-13.75, 26.5, 8] .+ 0.1  .* randn(3, Nmc) .|> Float32 |> CuArray;
 seeds[4, :] .= 1
-tract_length = zeros(UInt32, Nmc)
+tract_length = CuArray((zeros(UInt32, Nmc))
 ```
 
 we next define a buffer to hold the streamlines
