@@ -1,7 +1,8 @@
 # Tractography.jl
 
 
-<img src="inria.png" alt="Logo" align="right" width="120" />
+<img src="inria.png" alt="Logo" align="right" width="140" />
+<img src="neuromod.png" alt="Logo" align="right" width="90" />
 
 | **Documentation links:** | **Build status** | **Coverage** | **Version** |
 | :-: | :-: | :-: | :-: |
