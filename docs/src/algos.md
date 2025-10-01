@@ -36,4 +36,4 @@ The algorithm `alg = Probabilistic()` (see [`Tractography.Probabilistic`](@ref))
 
 $$\bm x_{i+1} = \bm x_i + \Delta s \bm u_i$$
 
-$$\bm u_{i+1} \sim \argmax g(\bm x_i, \cdot)$$
+$$\bm u_{i+1} \sim g(\bm x_i, \bm u_i, \cdot)$$
