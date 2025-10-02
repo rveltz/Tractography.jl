@@ -6,12 +6,15 @@
 
 | **Documentation links:** | **Build status** | **Coverage** | **Version** |
 | :-: | :-: | :-: | :-: |
-| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![Build status](https://github.com/rveltz/Tractography.jl/workflows/CI/badge.svg)](https://github.com/rveltz/Tractography.jl/actions) |   |    |
+| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![Build status](https://github.com/rveltz/Tractography.jl/workflows/CI/badge.svg)](https://github.com/rveltz/Tractography.jl/actions) |   |  [![][ver-img]][ver-url]  |
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://rveltz.github.io/Tractography.jl/stable/
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-purple.svg
 [docs-dev-url]: https://rveltz.github.io/Tractography.jl/dev/
+
+[ver-img]: https://juliahub.com/docs/Tractography/version.svg
+[ver-url]: https://juliahub.com/ui/Packages/Tractography/
 
 This Julia package implements different tractography algorithms on CPU / GPU.
 
