@@ -1,4 +1,8 @@
 using Test, Tractography, LinearAlgebra
+
+Tractography.softplus(0,1)
+Tractography.∂softplus(0,1)
+
 Tractography.spherical_to_euclidean(0,0)
 @test all(Tractography.euclidean_to_spherical(Tractography.spherical_to_euclidean(0.1, -0.01)...) .≈ [0.1, -0.01])
 u0 = normalize(rand(3))
@@ -8,3 +12,18 @@ u0 = normalize(rand(3))
 p0 = normalize(rand(3))
 v0 = normalize(rand(3)); v0 .-= dot(p0,v0) .* p0
 @test dot(v0, p0) ≈ 0 atol = 1e-14
+# u = Tractography.Exp𝕊²(p0, v0, 0.2)
+# @test norm(u) ≈ 1
+
+model = Tractography.TMC(Δt = 0.125f0,
+            odfdata = TG.ODFData((@__DIR__) * "/../examples/fod-FC.nii.gz"),
+            cone = TG.Cone(15),
+            proba_min = 0.005f0,
+            )
+
+Tractography._apply_mask!(model, ones(64, 64, 3))
+
+show(stdout, model)
+
+TG.sample(model, Tractography.Deterministic(), rand(Float32, 6, 2); nt = 10);
+TG.sample(model, Tractography.Probabilistic(), rand(Float32, 6, 2); nt = 10);

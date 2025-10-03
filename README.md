@@ -6,7 +6,7 @@
 
 | **Documentation links:** | **Build status** | **Coverage** | **Version** |
 | :-: | :-: | :-: | :-: |
-| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![Build status](https://github.com/rveltz/Tractography.jl/workflows/CI/badge.svg)](https://github.com/rveltz/Tractography.jl/actions) |   |  [![][ver-img]][ver-url]  |
+| [![][docs-stable-img]][docs-stable-url] [![][docs-dev-img]][docs-dev-url] | [![Build status](https://github.com/rveltz/Tractography.jl/workflows/CI/badge.svg)](https://github.com/rveltz/Tractography.jl/actions) |  [![codecov](https://codecov.io/github/rveltz/Tractography.jl/graph/badge.svg?token=ZV8A33CFI5)](https://codecov.io/github/rveltz/Tractography.jl) |  [![][ver-img]][ver-url]  |
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://rveltz.github.io/Tractography.jl/stable/

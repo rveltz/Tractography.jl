@@ -47,30 +47,8 @@ function fibonacci_sampling(N, 𝒯::DataType = Float64)
         out[n] = (𝒯(acos(1 - 2i/N)), 𝒯(mod(r * i, 2π)))
         n += 1
     end
-    out
+    return out
 end
 ####################################################################################################
 @inline softplus(x, k = 1) = ifelse(k * x < 30, log1p(exp(k * x)) / k, x) # avoid Inf for x large
 @inline ∂softplus(x, k = 1) = 1 / (1 + exp(-k * x))
-
-"""
-Return length of each streamline.
-"""
-@views function _get_length(streamlines::AbstractArray{𝒯}) where 𝒯
-    @assert size(streamlines, 1) >= 3
-    _,nt,Nmc = size(streamlines)
-    result = zeros(Int, Nmc)
-    Threads.@threads for n = 1:Nmc
-        len_st = 1
-        @inbounds for t = 1:nt-1
-            nm = norm(SVector(streamlines[1:3,t,n]...) - SVector(streamlines[1:3,t+1,n]...))
-            if nm == 0 || isnan(nm)
-                break
-            else
-                len_st += 1
-            end
-        end
-        result[n] = len_st
-    end
-    result
-end

@@ -64,28 +64,6 @@ function get_range(odfdata::ODFData)
            sort(LinRange(lz, rz, nz))
 end
 
-function _get_odf!(odf, ni::ODFData, inds)
-    data = ni.data
-    lmax = ni.lmax
-    i, j, k = inds
-    nx, ny, nz, nt = size(data)
-    # get the SH coefficients
-    n = 1
-    for l in 0:2:lmax
-        for m in -l:l
-            odf[sph_mode(l, m)] = data[i, j, k, n]
-            n += 1
-        end
-    end
-    odf
-end
-
-function _get_odf(ni::ODFData{Array{T, 4}}, ind; n_sphere = 4) where {T}
-    get_odf!(zeros(T, n_sphere + 1, 2n_sphere + 1), 
-                        ni, 
-                        ind)
-end
-
 """
 $(SIGNATURES)
 
@@ -164,10 +142,6 @@ function Base.show(io::IO, ni::ODFData{T, Tp}; full::Bool = false, prefix = "") 
     end
     println(prefix * " └─ Transform (s_row) = ⋯")
     if full
-        ni.S |> display
-        println()
-        for n in propertynames(ni.data.header)
-            println(n, " = ", getproperty(ni.data.header, n))
-        end
+        ni.transform.S |> display
     end
 end
