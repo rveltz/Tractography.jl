@@ -24,7 +24,7 @@ This Julia package implements different tractography algorithms on CPU / GPU.
 To install the package, run the following command in Julia package manager (press `]` in the REPL)
 
 ```julia
-pkg> add https://github.com/tractography.jl
+pkg> add Tractography
 ```
 
 
