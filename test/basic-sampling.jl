@@ -27,3 +27,15 @@ show(stdout, model)
 
 Tractography.sample(model, Tractography.Deterministic(), rand(Float32, 6, 2); nt = 10);
 Tractography.sample(model, Tractography.Probabilistic(), rand(Float32, 6, 2); nt = 10);
+
+########################
+# cache
+Nmc = 10
+seeds = rand(Float32, 6, Nmc)
+streamlines = zeros(Float32, 6, 20, Nmc)
+tract_length = zeros(UInt32, Nmc)
+alg = Probabilistic()
+cache = TG.init(model, alg)
+show(stdout, cache)
+cache = TG._init(model, alg)
+show(stdout, cache)

@@ -5,4 +5,5 @@ using Test
     include("basic-sampling.jl")
     include("cache.jl")
     include("data.jl")
+    include("sh.jl")
 end
