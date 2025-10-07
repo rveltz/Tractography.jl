@@ -1,5 +1,4 @@
-# Tractography.jl a GPU accelerated tractography code
-
+# Tractography.jl
 
 <img src="inria.png" alt="Logo" align="right" width="120" />
 <img src="neuromod.png" alt="Logo" align="right" width="90" />
