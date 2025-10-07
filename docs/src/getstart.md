@@ -53,11 +53,6 @@ alg = Probabilistic()
 streamlines, tract_length = sample(model, alg, seeds);
 ```
 
-## Optional: export the result for `mrview`
-
-```julia
-TG.save_streamlines("tractogram-julia.tck", streamlines)
-```
 
 # Optimal use
 

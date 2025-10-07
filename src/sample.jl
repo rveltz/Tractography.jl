@@ -15,7 +15,7 @@ function _init(model::TMC{𝒯, PlottingSH},
     _init_fibonacci_sh(model, n_sphere)
 end
 
-function _init(model::TMC{𝒯, ComputeAllODF},
+function _init(model::TMC{𝒯, PreComputeAllODF},
                 alg::AbstractNotPureRejectionSampler; 
                 n_sphere = 400) where 𝒯
     cache = _init_fibonacci_sh(model, n_sphere)

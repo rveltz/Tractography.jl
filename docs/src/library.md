@@ -42,7 +42,7 @@ Tractography.FibonacciSH
 ```
 
 ```@docs
-Tractography.ComputeAllODF
+Tractography.PreComputeAllODF
 ```
 
 ## Models

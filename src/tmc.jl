@@ -32,7 +32,7 @@ If you have `na` angles for sampling the unit sphere and the data is of size `(n
 
 See also `FibonacciSH`
 """
-struct ComputeAllODF <: AbstractEvaluation end
+struct PreComputeAllODF <: AbstractEvaluation end
 ####################################################################################################
 # streamlines tracking algorithms
 abstract type AbstractSampler end
@@ -44,7 +44,7 @@ abstract type DeterministicSampler <: AbstractNotPureRejectionSampler end
 """
 $(TYPEDEF)
 
-Tractography sampling performed with the cumulative sum distribution. Can be used with `FibonacciSH` and `ComputeAllODF`.
+Tractography sampling performed with the cumulative sum distribution. Can be used with `FibonacciSH` and `PreComputeAllODF`.
 
 # Constructor
 
@@ -55,7 +55,7 @@ struct Probabilistic <: AbstractNotPureRejectionSampler end
 """
 $(TYPEDEF)
 
-Tractography sampling performed with the argmax function. Can be used with `FibonacciSH` and `ComputeAllODF`.
+Tractography sampling performed with the argmax function. Can be used with `FibonacciSH` and `PreComputeAllODF`.
 """
 struct Deterministic <: DeterministicSampler end
 
@@ -125,8 +125,8 @@ $(TYPEDFIELDS)
 @with_kw_noshow struct TMC{𝒯, 𝒯alg <: AbstractEvaluation, 𝒯d, 𝒯C, 𝒯mol}
     "Step size of the TMC."
     Δt::𝒯 = 0.1f0
-    "Spherical harmonics evaluation algorithm. Can be `FibonacciSH(), ComputeAllODF()`."
-    evaluation_algo::𝒯alg = ComputeAllODF()
+    "Spherical harmonics evaluation algorithm. Can be `FibonacciSH(), PreComputeAllODF()`."
+    evaluation_algo::𝒯alg = PreComputeAllODF()
     "ODF data from nifti file. Must be the list of ODF in the base of spherical harmonics. Hence, it should be an (abstract) 4d array."
     odfdata::𝒯d = nothing
     "Cone function to restrict angle diffusion. You can use a `Cone` or a custom function `(d1, d2) -> return_a_boolean`."
