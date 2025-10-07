@@ -17,10 +17,18 @@ To come...
 ## 🧑‍💻 Other softwares
 
 There are several good softwares already available.
-- [MRtrix](https://github.com/MRtrix3/mrtrix3/tree/fb66ec3f4c0012be8760dbc0ed52c1824b28b3af) the main software to perform, among other things, tractography. It lacks GPU capability though.
-- [Fibers.jl](https://github.com/lincbrain/Fibers.jl) to deal with dMRI data.
-- [Trekker](https://dmritrekker.github.io)
+
+
+- [DIPY](https://dipy.org)
+- [DSI-studio](https://dsi-studio.labsolver.org)
 - [Entrack](https://vitalab.github.io/article/2019/11/21/entrack.html)
+- [ExploreDTI](https://www.exploredti.com)
+- [Fibers.jl](https://github.com/lincbrain/Fibers.jl) to deal with dMRI data.
+- [MRtrix](https://github.com/MRtrix3/mrtrix3/tree/fb66ec3f4c0012be8760dbc0ed52c1824b28b3af) the main software to perform, among other things, tractography. It lacks GPU capability though.
+- [Scilpy](https://github.com/scilus/scilpy)
+- [Trekker](https://dmritrekker.github.io)
+
+
 
 In Julia, the present package seems to be the only one focused on tractography.
 

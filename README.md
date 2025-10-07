@@ -1,7 +1,7 @@
 # Tractography.jl
 
 
-<img src="inria.png" alt="Logo" align="right" width="140" />
+<img src="inria.png" alt="Logo" align="right" width="120" />
 <img src="neuromod.png" alt="Logo" align="right" width="90" />
 
 | **Documentation links:** | **Build status** | **Coverage** | **Version** |
@@ -30,8 +30,12 @@ pkg> add Tractography
 
 ## Related softwares
 
-- [MRtrix](https://github.com/MRtrix3/mrtrix3/tree/fb66ec3f4c0012be8760dbc0ed52c1824b28b3af)
-- [Fibers.jl](https://github.com/lincbrain/Fibers.jl)
-- [Trekker](https://dmritrekker.github.io)
+- [DIPY](https://dipy.org)
+- [DSI-studio](https://dsi-studio.labsolver.org)
 - [Entrack](https://vitalab.github.io/article/2019/11/21/entrack.html)
+- [ExploreDTI](https://www.exploredti.com)
+- [Fibers.jl](https://github.com/lincbrain/Fibers.jl)
+- [MRtrix](https://github.com/MRtrix3/mrtrix3/tree/fb66ec3f4c0012be8760dbc0ed52c1824b28b3af)
+- [Scilpy](https://github.com/scilus/scilpy)
+- [Trekker](https://dmritrekker.github.io)
 
