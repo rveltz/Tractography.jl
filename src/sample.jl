@@ -11,18 +11,18 @@ end
 # for plotting
 function _init(model::TMC{𝒯, PlottingSH},
                 alg::AbstractNotPureRejectionSampler; 
-                n_sphere = 400) where 𝒯
+                n_sphere = 400) where {𝒯}
     _init_fibonacci_sh(model, n_sphere)
 end
 
 function _init(model::TMC{𝒯, PreComputeAllODF},
                 alg::AbstractNotPureRejectionSampler; 
-                n_sphere = 400) where 𝒯
+                n_sphere = 400) where {𝒯}
     cache = _init_fibonacci_sh(model, n_sphere)
     _build_cache_from_Y_matrix(model, cache, cache.Yₗₘ)
 end
 
-function _build_cache_from_Y_matrix(model::TMC{𝒯}, cache, Ysv) where 𝒯
+function _build_cache_from_Y_matrix(model::TMC{𝒯}, cache, Ysv) where {𝒯}
     na = size(Ysv, 1)
     # compute all ODF
     nx, ny, nz, nt = size(model)
@@ -49,7 +49,7 @@ Sample the TMC `model`.
 - `mask = nothing` matrix of boolean where to stop computation. See also `_apply_mask`.
 
 ## Optional arguments
-- `nt::Int` maximal length of each streamline.
+- `nt::Int` maximal number of steps to compute each streamline.
 - `n_sphere::Int = 400` number of points to discretize the sphere on which we evaluate the spherical harmonics.
 - `maxodf_start::Bool` for each locations, use direction provided by the argmax of the ODF.
 - `reverse_direction::Bool` reverse initial direction.
@@ -70,7 +70,9 @@ function sample(model::TMC{𝒯},
                 nthreads::Int = 8,
                 gputhreads::Int = 512
                 ) where {𝒯}
-    @assert size(seeds, 1) == 6
+    if size(seeds, 1) != 6
+        error("The seeds dimension must be 6 x nseed")
+    end
     cache = init(model, alg; n_sphere)
     if ~isnothing(mask)
         _apply_mask!(model, mask)
