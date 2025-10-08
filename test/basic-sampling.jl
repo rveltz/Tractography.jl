@@ -25,7 +25,8 @@ Tractography._apply_mask!(model, ones(64, 64, 3))
 
 show(stdout, model)
 
-Tractography.sample(model, Tractography.Deterministic(), rand(Float32, 6, 2); nt = 10);
+Tractography.sample(model, Tractography.Deterministic(), rand(Float32, 6, 2); nt = 10, maxodf_start = true, reverse_direction = true);
+Tractography.sample(model, Tractography.Connectivity(Tractography.Deterministic()), rand(Float32, 6, 2); nt = 10, maxodf_start = true);
 Tractography.sample(model, Tractography.Probabilistic(), rand(Float32, 6, 2); nt = 10);
 
 ########################
