@@ -40,9 +40,9 @@ Plot the streamlines.
 
 The optional parameters are passed to `lines!`
 """
-@views function plot_streamlines!(ax, streamlines::AbstractArray{T, 3}; k...) where {T}
-    _colors = Makie.RGB{T}[]
-    _lines = Point{3, T}[]
+@views function plot_streamlines!(ax, streamlines::AbstractArray{𝒯, 3}; k...) where {𝒯}
+    _colors = Makie.RGB{𝒯}[]
+    _lines = Point{3, 𝒯}[]
     @time  "SL" for nm in axes(streamlines, 3)
         for i in axes(streamlines, 2)
             push!(_lines, Point3(streamlines[1:3, i, nm]...))
@@ -60,17 +60,17 @@ The optional parameters are passed to `lines!`
                 end
             end
             push!(_colors, Makie.RGB(abs(x), 
-                                        abs(y), 
-                                        abs(z)
+                                     abs(y), 
+                                     abs(z)
                                     ) 
                 )
-            if sqrt(x^2 + y^2 + z^2) == 0 && i>1
+            if (x^2 + y^2 + z^2 == 0) && i > 1
                 break
             end
         end
         # this breaks the line
-        push!(_lines, Point{3,T}(NaN))
-        push!(_colors, Makie.RGB{T}(NaN))
+        push!(_lines, Point{3, 𝒯}(NaN))
+        push!(_colors, Makie.RGB{𝒯}(NaN))
     end
 
     lines!(ax, 
@@ -180,20 +180,20 @@ Plot the the ODF with glyphs.
 
 ## Arguments
 - `model::TMC`
-- `I,J,K` range for displaying the ODF. Some of them can be a single element, like `K = 40:40`.
+- `I, J, K` range for displaying the ODF. Some of them can be a single element, like `K = 40:40`.
 - `radius` radius of the glyph.
 - `st = 4` stride, only show one over `st` glyph in each direction.
 
 ## Optional arguments
 """
-function plot_odf!(ax, model::TMC{T} ; 
+function plot_odf!(ax, model::TMC{𝒯} ; 
                     n_sphere = 10,
                     radius = 0.1,
                     st = 4,
                     I = nothing,
                     J = nothing,
                     K = nothing,
-                    c0min = 0.1) where T
+                    c0min = 0.1) where 𝒯
 
     # Makie is happier with Vector{Point3} and Vector{GLTriangleFace}
     # it will convert to this anyway

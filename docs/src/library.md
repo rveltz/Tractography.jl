@@ -38,7 +38,7 @@ Tractography.euclidean_to_spherical
 ## [Spherical harmonics evaluation strategy](@id sheval)
 
 ```@docs
-Tractography.FibonacciSH
+Tractography.PlottingSH
 ```
 
 ```@docs

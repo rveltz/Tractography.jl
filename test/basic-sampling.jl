@@ -1,5 +1,9 @@
 using Test, Tractography, LinearAlgebra
 
+Tractography.PlottingSH()
+Tractography.PreComputeAllODF()
+Tractography.DirectSH()
+
 Tractography.softplus(0,1)
 Tractography.∂softplus(0,1)
 

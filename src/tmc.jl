@@ -1,38 +1,35 @@
 abstract type AbstractCache end
-# evaluation of Spherical harmonics
-abstract type AbstractEvaluation end
+# evaluation of spherical harmonics
+abstract type AbstractSPHEvaluation end
 
 """
 $(TYPEDEF)
 
-Spherical harmonics evaluation based on Fibonacci sampling. 
-The ODF are computed on the fly using matrix-vector. Requires little memory.
+The evaluation of spherical harmonics is done on the fly. Requires little memory.
 
-See also `ComputeAllODF`
+See also `PreComputeAllODF`
 """
-struct FibonacciSH <: AbstractEvaluation end
+struct DirectSH <: AbstractSPHEvaluation end
 
 """
 $(TYPEDEF)
 
 Set up for plotting ODF.
 """
-struct PlottingSH <: AbstractEvaluation end
+struct PlottingSH <: AbstractSPHEvaluation end
 
 """
 $(TYPEDEF)
 
-Spherical harmonics evaluation based on Fibonacci sampling. All ODF are pre-computed once. Their positivity is enforced with a `max(0,⋅)` or a mollifier. 
+Spherical harmonics evaluation based on Fibonacci sampling. All ODF are pre-computed once and saved in a cache. Their positivity is enforced with a `max(0,⋅)` or a mollifier. 
 
 !!! danger 
     Requires a relatively large memory!
 
 ## Details
 If you have `na` angles for sampling the unit sphere and the data is of size `(nx, ny, nz, nsph)`, it yields a matrix of dimensions `(nx, ny, nz, na)`.
-
-See also `FibonacciSH`
 """
-struct PreComputeAllODF <: AbstractEvaluation end
+struct PreComputeAllODF <: AbstractSPHEvaluation end
 ####################################################################################################
 # streamlines tracking algorithms
 abstract type AbstractSampler end
@@ -122,7 +119,7 @@ $(TYPEDFIELDS)
 - `TMC(Δt = 0.1, proba_min = 0.)` for a Float64 TMC. You need to specify both fields `Δt` and `proba_min`
 - `TMC(odfdata = rand(10,10,10,45))` for custom ODF
 """
-@with_kw_noshow struct TMC{𝒯, 𝒯alg <: AbstractEvaluation, 𝒯d, 𝒯C, 𝒯mol}
+@with_kw_noshow struct TMC{𝒯, 𝒯alg <: AbstractSPHEvaluation, 𝒯d, 𝒯C, 𝒯mol}
     "Step size of the TMC."
     Δt::𝒯 = 0.1f0
     "Spherical harmonics evaluation algorithm. Can be `FibonacciSH(), PreComputeAllODF()`."
@@ -186,25 +183,4 @@ function _apply_mask!(model, mask)
     end
 end
 ####################################################################################################
-"""
-$(SIGNATURES)
-
-Save tractogram in `filename` in a `tck` format. You should probably use a filename like `streamlines-julia.tck`.
-
-# Arguments
-- `filename::String` file name.
-- `tractogram` can either be an abstract array of dimension `3 x n_length_fiber x n_fibres` or a `Vector{ <: TractoResult}` after a call to `sample`.
-
-# Notes
-The current implementation is based on NiBabel.
-"""
-function save_streamlines(filename::String, tractogram::AbstractArray{T, 3}, tracto_length) where {T}
-    if size(tractogram, 1) != 3 
-        error("The streamlines must have size 3 x ns x n_nmc")
-    end
-    nib = pyimport("nibabel")
-    np = pyimport("numpy")
-    streamlines = tracto = [tractogram[:, 1:tracto_length[k], k]' for k in axes(tractogram, 3) if tracto_length[k] > 2]
-    @info "Saving in file: " filename
-    nib.streamlines.TckFile(nib.streamlines.Tractogram(streamlines, affine_to_rasmm = np.eye(4))).save(filename)
-end
+function save_streamlines end
