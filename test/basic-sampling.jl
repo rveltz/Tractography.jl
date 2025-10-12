@@ -56,5 +56,6 @@ show(stdout, cache)
 
 ########################
 # cache diffusion
+show(Tractography.Diffusion())
 cache = Tractography.init(model_diffusion, Tractography.Diffusion())
 cache = Tractography.init((@set model_diffusion.evaluation_algo = Tractography.PreComputeAllODF()), Tractography.Diffusion())

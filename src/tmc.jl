@@ -116,10 +116,10 @@ is_adaptive(alg::Connectivity) = is_adaptive(_get_alg(alg))
 function Base.show(io::IO, alg::Diffusion{Ta, T}) where {Ta, T}
     printstyled(io, "Diffusion [$T]" ; bold = true, color = :cyan)
     printstyled(io, " sampling algorithm\n", color = :cyan)
-    println(io, "├─ adaptive = ", alg.adaptive)
+    println(io, "├─ adaptive = ", is_adaptive(alg))
     println(io, "├─ alg      = ", alg.alg_sde)
-    println(io, "├─ γ        = ", alg.γ)
-    println(io, "└─ γ_noise  = ", alg.γ_noise)
+    println(io, "├─ γ        = ", get_γ(alg))
+    println(io, "└─ γ_noise  = ", get_γ_noise(alg))
     if ~isnothing(alg.kw_sde)
         println(io, "kw = ", alg.kw_sde)
     end
