@@ -43,7 +43,10 @@ struct ODFData{𝒯, 𝒯d, 𝒯s, 𝒯t}
     lmax::Int
     "transform associated with data, see `Transform`."
     transform::Transform{𝒯s, 𝒯t}
+    "Are the data normalized? In this case odf[i,j,l,1] ∈ {0,1}."
+    normalized::Bool
 end
+
 """
 max l coordinate in of spherical harmonics
 """
@@ -54,6 +57,7 @@ _get_array(x::NIfTI.NIVolume) = x.raw
 _get_array(x::ODFData) = _get_array(x.data)
 _my_typeof(x) = typeof(x)
 _my_typeof(x::NIfTI.NIVolume) = typeof(x.raw)
+is_normalized(odfdata) = odfdata.normalized
 
 function get_range(odfdata::ODFData)
     nx, ny, nz, nt = size(odfdata)
@@ -72,10 +76,10 @@ Constructor for `ODFData` based on Array data and transform.
 ## Arguments
 - `data::AbstractArray{𝒯, 4}`
 """
-function ODFData(file_name, data::AbstractArray{𝒯, 4}, S::𝒯s, T::𝒯t) where {𝒯, 𝒯s, 𝒯t}
+function ODFData(file_name, data::AbstractArray{𝒯, 4}, S::𝒯s, T::𝒯t, normalize_it::Bool) where {𝒯, 𝒯s, 𝒯t}
     Sinv = pinv(S)
     lmax = get_lmax_from_odf_length(size(_get_array(data), 4))
-    ODFData{_my_typeof(data), typeof(data), 𝒯s, 𝒯t}(file_name, data, lmax, Transform(S, Sinv, T))
+    ODFData{_my_typeof(data), typeof(data), 𝒯s, 𝒯t}(file_name, data, lmax, Transform(S, Sinv, T), normalize_it)
 end
 @inline transform(ni::ODFData, x) = transform(ni.transform, x)
 @inline transform_inv(ni::ODFData, x) = transform_inv(ni.transform, x)
@@ -111,7 +115,7 @@ function ODFData(file::String; normalize_it::Bool = true, k...)
     A = NIfTI.getaffine(data.header)
     S = SA.@SMatrix [A[i, j] for i = 1:4, j = 1:4]
     T = SA.@SVector [A[i, end] for i = 1:3]
-    return ODFData(file, data, S, T)
+    return ODFData(file, data, S, T, normalize_it)
 end
 
 function _normalize_sph_data!(data)

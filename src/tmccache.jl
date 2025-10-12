@@ -26,11 +26,11 @@ $(TYPEDFIELDS)
     dΩ::𝒯d
     "Buffer to hold the cone sample on the grid."
     cone::𝒯c = nothing
-    "Matrix of all ODF values."
+    "Array of all ODF values. Its shape is `(nt,nx,ny,nz)` where `nt` is the number of angles or SPH coefficients."
     odf::𝒯all = nothing
-    "Matrix of all ∂θ ODF values."
+    "Array of all ∂θ ODF values."
     ∂θodf::𝒯alld1 = nothing
-    "Matrix of all ∂ϕ ODF values."
+    "Array of all ∂ϕ ODF values."
     ∂ϕodf::𝒯alld2 = nothing
 end
 @inline get_angles(cache, ii) = cache.angles[ii]
@@ -63,11 +63,11 @@ Cache specific to threaded or GPU computations.
 $(TYPEDFIELDS)
 """
 struct ThreadedCache{𝒯a, 𝒯c, 𝒯ai, 𝒯ang, 𝒯, 𝒯s} <: AbstractCache
-    "Matrix of all ODF values."
+    "Array of all ODF values. See also `TMCCache`."
     odf::𝒯a
-    "Matrix of all ∂θ ODF values."
+    "Array of all ∂θ ODF values."
     ∂θodf::Union{Nothing, 𝒯a}
-    "Matrix of all ∂ϕ ODF values."
+    "Array of all ∂ϕ ODF values."
     ∂ϕodf::Union{Nothing, 𝒯a}
     "Buffer to hold the cone sample on the grid."
     cone::𝒯c
@@ -77,7 +77,7 @@ struct ThreadedCache{𝒯a, 𝒯c, 𝒯ai, 𝒯ang, 𝒯, 𝒯s} <: AbstractCach
     angles::𝒯ang
     "Integral of fodf (after correction with mollifier)."
     ∫odf::𝒯s
-    "Measure to compute integrals of probabilities."
+    "Measure element to compute integrals of probabilities."
     dΩ::𝒯
 end
 

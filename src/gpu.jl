@@ -215,7 +215,7 @@ KA.@kernel inbounds=false function _sample_kernel!(
     cone_c = zero(𝒯)
 
     for iₜ = 2:nₜ
-        # x is an native space, we want it in voxel space
+        # x is in native space, we want it in voxel space
         voxel₁, voxel₂, voxel₃ = get_voxel_gpu(tf, (x₁, x₂, x₃))
 
         inside_brain = 0 < voxel₁ <= nx &&
