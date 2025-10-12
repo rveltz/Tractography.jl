@@ -1,4 +1,4 @@
-using Test, Tractography, LinearAlgebra
+using Test, Tractography, LinearAlgebra, Accessors
 
 Tractography.PlottingSH()
 Tractography.PreComputeAllODF()
