@@ -71,6 +71,59 @@ end
 
 _get_alg(alg) = alg
 _get_alg(alg::Connectivity) = alg.alg
+
+"""
+$(TYPEDEF)
+
+Tractography sampling performed with diffusive model. Basically, the streamlines (Xₜ)ₜ are solution of the SDE
+
+dXₜ = γ * drift dt + γ_noise * √γ * dnoiseₜ
+
+# Arguments (with default values):
+$(TYPEDFIELDS)
+
+# Constructor
+
+Example for `Float32`: `Diffusion(γ = 1f0)`.
+If you want `Float64`, you have to pass the two scalars
+
+    ```Diffusion(γ = 1.0, γ_noise = 1.0)```
+"""
+@with_kw_noshow struct Diffusion{Ta, T, Tk, Tmol, Tdmol} <: AbstractSampler
+    "SciML algorithm used to simulate the tractography diffusion process."
+    alg_sde::Ta = nothing
+    "γ parameter of the diffusion process."
+    γ::T = 1f0
+    "parameter of the diffusion process to scale the variance."
+    γ_noise::T = 1f0
+    "keyword arguments passed to alg_sde."
+    kw_sde::Tk = nothing
+    "mollifier."
+    mollifier::Tmol = Base.Fix2(softplus, 10)
+    "differential of mollifier."
+    d_mollifier::Tdmol = Base.Fix2(∂softplus, 10)
+    "Fixed time step?"
+    adaptive::Bool = false
+end
+
+get_γ(alg::Diffusion) = alg.γ
+get_γ(alg::Connectivity) = get_γ(_get_alg(alg))
+get_γ_noise(alg::Diffusion) = alg.γ_noise
+get_γ_noise(alg::Connectivity) = get_γ_noise(_get_alg(alg))
+is_adaptive(alg::Diffusion) = alg.adaptive
+is_adaptive(alg::Connectivity) = is_adaptive(_get_alg(alg))
+
+function Base.show(io::IO, alg::Diffusion{Ta, T}) where {Ta, T}
+    printstyled(io, "Diffusion [$T]" ; bold = true, color = :cyan)
+    printstyled(io, " sampling algorithm\n", color = :cyan)
+    println(io, "├─ adaptive = ", alg.adaptive)
+    println(io, "├─ alg      = ", alg.alg_sde)
+    println(io, "├─ γ        = ", alg.γ)
+    println(io, "└─ γ_noise  = ", alg.γ_noise)
+    if ~isnothing(alg.kw_sde)
+        println(io, "kw = ", alg.kw_sde)
+    end
+end
 ####################################################################################################
 """
 $(TYPEDEF)

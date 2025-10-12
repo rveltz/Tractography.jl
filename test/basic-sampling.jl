@@ -25,6 +25,12 @@ model = Tractography.TMC(Δt = 0.125f0,
             proba_min = 0.005f0,
             )
 
+model_diffusion = TG.TMC(Δt = 0.001f0,
+            odfdata = Tractography.ODFData((@__DIR__) * "/../examples/fod-FC.nii.gz"),
+            proba_min = 0.0f0,
+            evaluation_algo = TG.DirectSH(),
+            )
+
 Tractography._apply_mask!(model, ones(64, 64, 3))
 
 show(stdout, model)
@@ -32,6 +38,7 @@ show(stdout, model)
 Tractography.sample(model, Tractography.Deterministic(), rand(Float32, 6, 2); nt = 10, maxodf_start = true, reverse_direction = true);
 Tractography.sample(model, Tractography.Connectivity(Tractography.Deterministic()), rand(Float32, 6, 2); nt = 10, maxodf_start = true);
 Tractography.sample(model, Tractography.Probabilistic(), rand(Float32, 6, 2); nt = 10);
+Tractography.sample(model_diffusion, Tractography.Diffusion(), rand(Float32, 6, 2); nt = 10);
 
 ########################
 # cache
@@ -44,3 +51,8 @@ cache = Tractography.init(model, alg)
 show(stdout, cache)
 cache = Tractography._init(model, alg)
 show(stdout, cache)
+
+########################
+# cache diffusion
+cache = TG.init(model_diffusion, Tractography.Diffusion())
+cache = TG.init((@set model_diffusion.evaluation_algo = TG.PreComputeAllODF()), Tractography.Diffusion())

@@ -10,7 +10,7 @@ module Tractography
     # sampling method of FODF
     export FibonacciSH, ComputeAllODF
     export ODFData, TMC, Cone, sample_odf, sample, init
-    export Probabilistic, Rejection, Deterministic, Connectivity
+    export Probabilistic, Rejection, Deterministic, Diffusion, Connectivity
     export save_streamlines
 
     # plotting
@@ -24,4 +24,5 @@ module Tractography
     include("tmccache.jl")
     include("sample.jl")
     include("gpu.jl")
+    include("diffusion.jl")
 end
