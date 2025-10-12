@@ -66,9 +66,9 @@ struct ThreadedCache{𝒯a, 𝒯c, 𝒯ai, 𝒯ang, 𝒯, 𝒯s} <: AbstractCach
     "Array of all ODF values. See also `TMCCache`."
     odf::𝒯a
     "Array of all ∂θ ODF values."
-    ∂θodf::Union{Nothing, 𝒯a}
+    ∂θodf::𝒯a
     "Array of all ∂ϕ ODF values."
-    ∂ϕodf::Union{Nothing, 𝒯a}
+    ∂ϕodf::𝒯a
     "Buffer to hold the cone sample on the grid."
     cone::𝒯c
     "List of directions ∈ 𝕊² for sampling the sphere."

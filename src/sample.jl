@@ -33,7 +33,7 @@ function _build_cache_from_Y_matrix(model::TMC{𝒯}, cache, Ysv) where {𝒯}
     odf_v  = @time_debug "Mat-Vec:" ni_v * Ysv'; # vector view
     odf = reshape(odf_v, nx, ny, nz, na);
     @time_debug "Mollifier:" @tturbo @. odf = model.mollifier(odf)
-    @reset cache.odf = permutedims(odf, (4, 1, 2, 3))
+    @reset cache.odf = permutedims(odf, (4,1,2,3))
     return cache
 end
 
@@ -55,6 +55,7 @@ Sample the TMC `model`.
 - `reverse_direction::Bool` reverse initial direction.
 - `nthreads::Int = 8` number of threads on CPU.
 - `gputhreads::Int = 512` number of threads on GPU.
+- `saveat::Int` record the streamline every `saveat` step. Only available for `alg <: Diffusion`.
 
 ## Output
 - `streamlines` with shape `3 x nt x Nmc`
@@ -68,17 +69,18 @@ function sample(model::TMC{𝒯},
                 maxodf_start::Bool = false,
                 reverse_direction::Bool = false,
                 nthreads::Int = 8,
-                gputhreads::Int = 512
+                gputhreads::Int = 512,
+                saveat::Int = 1,
                 ) where {𝒯}
     if size(seeds, 1) != 6
         error("The seeds dimension must be 6 x nseed")
     end
+    streamlines = similar(seeds, 3, (alg isa Connectivity ? 2 : div(nt, saveat)), size(seeds, 2))
+    streamlines_length = zeros(UInt32, size(seeds, 2))
     cache = init(model, alg; n_sphere)
     if ~isnothing(mask)
         _apply_mask!(model, mask)
     end
-    streamlines = similar(seeds, 3, (alg isa Connectivity ? 2 : nt), size(seeds, 2))
-    streamlines_length = zeros(UInt32, size(seeds, 2))
     sample!(streamlines,
             streamlines_length,
             model,
@@ -89,6 +91,7 @@ function sample(model::TMC{𝒯},
             reverse_direction,
             nthreads,
             gputhreads,
+            saveat,
             nₜ = nt)
     return streamlines, streamlines_length
 end

@@ -25,8 +25,8 @@ function init(model::TMC{𝒯},
 
     ThreadedCache(
             _is_on_cpu ? cache_cpu.odf : 𝒯ₐ(cache_cpu.odf),
-            nothing,
-            nothing,
+            𝒯ₐ(zeros(𝒯, 0,0,0,0)),
+            𝒯ₐ(zeros(𝒯, 0,0,0,0)),
             _is_on_cpu ? cache_cpu.cone : 𝒯ₐ(cache_cpu.cone),
             𝒯ₐ(mapreduce(x->[x[1] x[2] x[3]], vcat, cache_cpu.directions)),
             𝒯ₐ(mapreduce(x->[x[1] x[2]], vcat, cache_cpu.angles)),
@@ -64,10 +64,14 @@ function sample!(streamlines,
                   nthreads = 8,
                   gputhreads = 512,
                   nₜ = size(streamlines, 2),
+                  saveat::Int = 1,
                   𝒯ₐ = Array) where {𝒯}
     _, nx, ny, nz = size(cache.odf)
     if isnothing(cache.cone)
         error("You did not pass a cone function to TMC!")
+    end
+        if saveat > 1
+        error("This option is not yet available. Open an issue on the website if you want this feature.")
     end
     # the following allows for type inference
     launch_kernel(nthreads;
@@ -107,6 +111,7 @@ function launch_kernel(nthreads = 8;
                         nx, ny, nz,
                         gputhreads = 512,
                         nₜ = size(streamlines, 2),
+                        saveat::Int = 1,
                         ) where {𝒯, 𝒩}
     Nmc = size(seeds, 2)
     if size(seeds, 1) != 6 
