@@ -16,8 +16,8 @@ u0 = normalize(rand(3))
 p0 = normalize(rand(3))
 v0 = normalize(rand(3)); v0 .-= dot(p0,v0) .* p0
 @test dot(v0, p0) ≈ 0 atol = 1e-14
-# u = Tractography.Exp𝕊²(p0, v0, 0.2)
-# @test norm(u) ≈ 1
+u = Tractography.Exp𝕊²(p0, v0, 0.2)
+@test norm(u) ≈ 1
 
 model = Tractography.TMC(Δt = 0.125f0,
             odfdata = Tractography.ODFData((@__DIR__) * "/../examples/fod-FC.nii.gz"),
@@ -38,9 +38,11 @@ show(stdout, model)
 Tractography.sample(model, Tractography.Deterministic(), rand(Float32, 6, 2); nt = 10, maxodf_start = true, reverse_direction = true);
 Tractography.sample(model, Tractography.Connectivity(Tractography.Deterministic()), rand(Float32, 6, 2); nt = 10, maxodf_start = true);
 Tractography.sample(model, Tractography.Probabilistic(), rand(Float32, 6, 2); nt = 10);
+Tractography.sample(model, Tractography.Connectivity(Tractography.Probabilistic()), rand(Float32, 6, 2); nt = 10);
 
-Tractography.sample(model_diffusion, Tractography.Diffusion(), rand(Float32, 6, 2); nt = 10);
-Tractography.sample(model, Tractography.Diffusion(), rand(Float32, 6, 2); nt = 10);
+Tractography.sample(model_diffusion, Tractography.Diffusion(), rand(Float32, 6, 2); nt = 10, maxodf_start = true, reverse_direction = true);
+Tractography.sample(model_diffusion, Tractography.Connectivity(Tractography.Diffusion()), rand(Float32, 6, 2); nt = 10, maxodf_start = true, reverse_direction = true);
+Tractography.sample(model, Tractography.Diffusion(adaptive = false), rand(Float32, 6, 2); nt = 10);
 
 ########################
 # cache
@@ -50,12 +52,18 @@ streamlines = zeros(Float32, 6, 20, Nmc)
 tract_length = zeros(UInt32, Nmc)
 alg = Probabilistic()
 cache = Tractography.init(model, alg)
+Tractography.get_angles(cache, 1)
 show(stdout, cache)
 cache = Tractography._init(model, alg)
 show(stdout, cache)
+cache = Tractography.init(model, Tractography.Diffusion())
+show(stdout, cache)
+
+Tractography._init((@set model.evaluation_algo = Tractography.PlottingSH()), Tractography.Deterministic())
 
 ########################
 # cache diffusion
 show(Tractography.Diffusion())
 cache = Tractography.init(model_diffusion, Tractography.Diffusion())
 cache = Tractography.init((@set model_diffusion.evaluation_algo = Tractography.PreComputeAllODF()), Tractography.Diffusion())
+Tractography.Exp𝕊²(rand(3), zeros(3), 1)

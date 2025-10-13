@@ -14,3 +14,5 @@ TG.transform(model.odfdata, CartesianIndex{3}(1,1,1))
 @test TG.transform_inv(model.odfdata, y)[1:3] ≈ x rtol = 1e-6
 
 TG.get_range(model.odfdata)
+TG._get_array(zeros(2))
+TG._my_typeof(1)
