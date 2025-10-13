@@ -17,7 +17,7 @@ function Exp𝕊²(p, X, t)
 end
 ####################################################################################################
 function init(model::TMC{𝒯, DirectSH}, 
-                alg::Diffusion; 
+                alg::Union{Diffusion, Connectivity{ <: Diffusion}}; 
                 𝒯ₐ = Array{𝒯},
                 n_sphere = 0) where {𝒯}
     ni =  𝒯.(get_array(model))
@@ -85,11 +85,11 @@ function _init(model::TMC{𝒯, PreComputeAllODF},
 end
 
 function init(model::TMC{𝒯},
-                alg::Diffusion;
+                alg::Union{Diffusion, Connectivity{ <: Diffusion}};
                 n_sphere = 400,
                 𝒯ₐ = Array{𝒯},
                 ) where 𝒯
-    cache_cpu = _init(model, alg; n_sphere)
+    cache_cpu = _init(model, _get_alg(alg); n_sphere)
     # do not copy the array if the types are the same
     _is_on_cpu = cache_cpu.odf isa 𝒯ₐ
     ∫odf = sum(cache_cpu.odf, dims = 1)[1, :, :, :]
