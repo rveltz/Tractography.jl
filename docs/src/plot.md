@@ -18,7 +18,7 @@ model = TG.TMC(Δt = 0.125f0,
 
 ## Plotting the FODFs
 
-We rely on the function `plot_odf!` whose docs [`plot_odf!`](@ref) provides the information regarding the keyword arguments.
+We rely on the function [`plot_odf!`](@ref) provides the information regarding the keyword arguments.
 
 ```@example PLOTTING
 using CairoMakie
@@ -33,7 +33,7 @@ f
 
 ## Plotting the streamlines
 
-We rely on the function `plot_odf!` whose docs [`plot_streamlines!`](@ref) provides the information regarding the keyword arguments.
+We rely on the function [`plot_streamlines!`](@ref) provides the information regarding the keyword arguments.
 
 ```@example PLOTTING
 # make some streamlines
