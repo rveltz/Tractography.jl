@@ -16,6 +16,11 @@ To come...
 
 ## 🧑‍💻 Other softwares
 
+
+Similar algorithms as the one provided here are implemented in the python package
+
+[https://gitlab.inria.fr/cronos/software/tractography](https://gitlab.inria.fr/cronos/software/tractography)
+
 There are several good softwares already available.
 
 

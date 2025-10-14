@@ -86,7 +86,6 @@ Tractography.sample!
 ## Plotting
 
 ```@docs
-Tractography.plot_streamlines
 Tractography.plot_streamlines!
 ```
 

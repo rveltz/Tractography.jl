@@ -29,6 +29,13 @@ pkg> add Tractography
 
 ## Related softwares
 
+Similar algorithms as the one provided here are implemented in the python package
+
+[https://gitlab.inria.fr/cronos/software/tractography](https://gitlab.inria.fr/cronos/software/tractography)
+
+There are several good softwares already available.
+
+
 - [DIPY](https://dipy.org)
 - [DSI-studio](https://dsi-studio.labsolver.org)
 - [Entrack](https://vitalab.github.io/article/2019/11/21/entrack.html)
