@@ -35,6 +35,7 @@ pkg> add Tractography
 - [ExploreDTI](https://www.exploredti.com)
 - [Fibers.jl](https://github.com/lincbrain/Fibers.jl)
 - [MRtrix](https://github.com/MRtrix3/mrtrix3/tree/fb66ec3f4c0012be8760dbc0ed52c1824b28b3af)
+- [Microstructure.jl](https://github.com/Tinggong/Microstructure.jl)
 - [Scilpy](https://github.com/scilus/scilpy)
 - [Trekker](https://dmritrekker.github.io)
 

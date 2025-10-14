@@ -23,8 +23,9 @@ There are several good softwares already available.
 - [DSI-studio](https://dsi-studio.labsolver.org)
 - [Entrack](https://vitalab.github.io/article/2019/11/21/entrack.html)
 - [ExploreDTI](https://www.exploredti.com)
-- [Fibers.jl](https://github.com/lincbrain/Fibers.jl) to deal with dMRI data.
+- [Fibers.jl](https://github.com/lincbrain/Fibers.jl) julia set of tools to deal with diffusion MRI data.
 - [MRtrix](https://github.com/MRtrix3/mrtrix3/tree/fb66ec3f4c0012be8760dbc0ed52c1824b28b3af) the main software to perform, among other things, tractography. It lacks GPU capability though.
+- [Microstructure.jl](https://github.com/Tinggong/Microstructure.jl)
 - [Scilpy](https://github.com/scilus/scilpy)
 - [Trekker](https://dmritrekker.github.io)
 
