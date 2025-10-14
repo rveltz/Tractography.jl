@@ -65,6 +65,10 @@ Probabilistic
 Diffusion
 ```
 
+```@docs
+Tractography.Connectivity
+```
+
 ## Sampling
 
 ```@docs
