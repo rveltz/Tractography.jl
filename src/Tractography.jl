@@ -6,6 +6,7 @@ module Tractography
     import StaticArrays as SA
     using LoopVectorization
     import FastTransforms
+    using Random
 
     # sampling method of FODF
     export FibonacciSH, ComputeAllODF
@@ -18,6 +19,7 @@ module Tractography
 
     include("plot.jl")
     include("tmc.jl")
+    include("seeds.jl")
     include("utils.jl")
     include("data.jl")
     include("sph.jl")

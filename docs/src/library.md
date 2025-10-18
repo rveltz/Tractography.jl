@@ -9,6 +9,16 @@ Pages = ["library.md"]
 Depth = 3
 ```
 
+## Seeds
+
+```@docs
+Tractography.from_odf
+```
+
+```@docs
+Tractography.from_mask
+```
+
 ## Misc
 
 ```@docs

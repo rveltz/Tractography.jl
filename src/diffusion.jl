@@ -206,7 +206,7 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
     ind_u::Int32 = 1
 
     if maxodf_start && precomputed_odf
-        voxel₁, voxel₂, voxel₃ = get_voxel_gpu(tf, (x₁, x₂, x₃))
+        voxel₁, voxel₂, voxel₃ = get_voxel(tf, (x₁, x₂, x₃))
         ind_u = _device_argmax(fodf, voxel₁, voxel₂, voxel₃, n_angles)
         u₁ = directions[ind_u, 1]
         u₂ = directions[ind_u, 2]
@@ -244,7 +244,7 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
         P = SA.SVector(x₁, x₂, x₃)
         D = SA.SVector(u₁, u₂, u₃)
         # x is in native space, we want it in voxel space
-        voxel₁, voxel₂, voxel₃ = get_voxel_gpu(tf, P)
+        voxel₁, voxel₂, voxel₃ = get_voxel(tf, P)
 
         inside_brain = (0 < voxel₁ <= nx) &&
                        (0 < voxel₂ <= ny) &&

@@ -117,8 +117,8 @@ function launch_kernel(nthreads = 8;
     if size(seeds, 1) != 6 
         error("The initial positions must be passed as an 6 x N array.")
     end
-    if (size(directions, 2) != 3) || (Nmc != size(streamlines, 3))
-        error("")
+    if (size(directions, 2) != 3) || (Nmc > size(streamlines, 3))
+        error("The size of direction or the size of streamlines is too small!")
     end
     if size(streamlines, 3) != length(streamlines_length)
         error("You must pass an abstract Vector `streamlines_length` whose length matches the last dimension of `streamlines`")
@@ -184,7 +184,7 @@ KA.@kernel inbounds=false function _sample_kernel!(
     u₂ = seeds[5, nₙₘ]
     u₃ = seeds[6, nₙₘ]
 
-    n_angles = UInt32(size(directions, 1))
+    n_angles = UInt32(size(fodf, 1))
 
     # current index of angle
     ind_u::UInt32 = 1
@@ -193,7 +193,7 @@ KA.@kernel inbounds=false function _sample_kernel!(
     voxel₁ = voxel₂ = voxel₃ = Int32(0)
 
     if maxodf_start
-        voxel₁, voxel₂, voxel₃ = get_voxel_gpu(tf, (x₁, x₂, x₃))
+        voxel₁, voxel₂, voxel₃ = get_voxel(tf, (x₁, x₂, x₃))
         ind_u = _device_argmax(fodf, voxel₁, voxel₂, voxel₃, n_angles)
         u₁ = directions[ind_u, 1]
         u₂ = directions[ind_u, 2]
@@ -221,7 +221,7 @@ KA.@kernel inbounds=false function _sample_kernel!(
 
     for iₜ = 2:nₜ
         # x is in native space, we want it in voxel space
-        voxel₁, voxel₂, voxel₃ = get_voxel_gpu(tf, (x₁, x₂, x₃))
+        voxel₁, voxel₂, voxel₃ = get_voxel(tf, (x₁, x₂, x₃))
 
         inside_brain = 0 < voxel₁ <= nx &&
                        0 < voxel₂ <= ny &&
@@ -307,7 +307,7 @@ KA.@kernel inbounds=false function _sample_kernel!(
     end
 end
 
-@inline function get_voxel_gpu(tf::Transform, x_native)
+@inline function get_voxel(tf::Transform, x_native)
     # x is an native space, we want it in voxel space
     x = transform_inv(tf, SA.SVector(x_native[1], x_native[2], x_native[3], 1))
     # we use this hack instead of Int(round(...)) because Metal 
@@ -319,7 +319,7 @@ end
 
 @inline function _device_argmax(fodf::AbstractArray{𝒯, 4}, voxel₁, voxel₂, voxel₃, n::UInt32) where {𝒯}
     _val_max = zero(𝒯)
-    ind_u = UInt32(0)
+    ind_u = UInt32(1)
     for ii = UInt32(1):n
         @inbounds val = fodf[ii, voxel₁, voxel₂, voxel₃]
         if val > _val_max

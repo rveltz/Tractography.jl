@@ -17,7 +17,7 @@ To come...
 ## 🧑‍💻 Other softwares
 
 
-Similar algorithms as the one provided here are implemented in the python package
+Similar algorithms as the ones provided here are implemented in the python package
 
 [https://gitlab.inria.fr/cronos/software/tractography](https://gitlab.inria.fr/cronos/software/tractography)
 
@@ -31,12 +31,14 @@ There are several good softwares already available.
 - [Fibers.jl](https://github.com/lincbrain/Fibers.jl) julia set of tools to deal with diffusion MRI data.
 - [MRtrix](https://github.com/MRtrix3/mrtrix3/tree/fb66ec3f4c0012be8760dbc0ed52c1824b28b3af) the main software to perform, among other things, tractography. It lacks GPU capability though.
 - [Microstructure.jl](https://github.com/Tinggong/Microstructure.jl)
+- [NeuroFormats.jl](https://github.com/dfsp-spirit/NeuroFormats.jl)
 - [Scilpy](https://github.com/scilus/scilpy)
 - [Trekker](https://dmritrekker.github.io)
 
 
-
 In Julia, the present package seems to be the only one focused on tractography.
+
+There is also [JuliaNeuroscience](https://github.com/JuliaNeuroscience).
 
 ## A word on performance
 

@@ -26,10 +26,9 @@ To install the package, run the following command in Julia package manager (pres
 pkg> add Tractography
 ```
 
-
 ## Related softwares
 
-Similar algorithms as the one provided here are implemented in the python package
+Similar algorithms as the ones provided here are implemented in the python package
 
 [https://gitlab.inria.fr/cronos/software/tractography](https://gitlab.inria.fr/cronos/software/tractography)
 
@@ -43,6 +42,9 @@ There are several good softwares already available.
 - [Fibers.jl](https://github.com/lincbrain/Fibers.jl)
 - [MRtrix](https://github.com/MRtrix3/mrtrix3/tree/fb66ec3f4c0012be8760dbc0ed52c1824b28b3af)
 - [Microstructure.jl](https://github.com/Tinggong/Microstructure.jl)
+- [NeuroFormats.jl](https://github.com/dfsp-spirit/NeuroFormats.jl)
 - [Scilpy](https://github.com/scilus/scilpy)
 - [Trekker](https://dmritrekker.github.io)
+
+There is also [JuliaNeuroscience](https://github.com/JuliaNeuroscience).
 
