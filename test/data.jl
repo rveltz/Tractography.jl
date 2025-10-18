@@ -16,3 +16,7 @@ TG.transform(model.odfdata, CartesianIndex{3}(1,1,1))
 TG.get_range(model.odfdata)
 TG._get_array(zeros(2))
 TG._my_typeof(1)
+
+TG.from_odf(model, 10)
+mask = model.odfdata.data[:,:,:,1].>0;
+TG.from_mask(model, mask, 10)

@@ -16,6 +16,7 @@ NIfTI = "a3a9e032-41b5-5fc4-967a-a6b7a19844d3"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 ProgressMeter = "92933f4c-e287-5a05-a399-4b506db050ca"
 Quickhull = "baca2653-9c88-49d2-a488-12dbf25fc4fb"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
