@@ -95,9 +95,9 @@ function get_vector_of_sh(angles::AbstractVector{Tuple{𝒯, 𝒯}}, lmax, der::
 end
 
 function ishtmtx_dot(phi::𝒯, 
-                 theta::𝒯,
-                 V::AbstractVector{𝒯},
-                 ) where {𝒯}
+                     theta::𝒯,
+                     V::AbstractVector{𝒯},
+                     ) where {𝒯}
 
     st, ct = sincos(theta)
     sp, cp = sincos(phi)
@@ -160,12 +160,9 @@ function ishtmtx_dot(phi::𝒯,
     ylm = ylm_dp = ylm_dt = zero(𝒯)
 
     @inbounds begin
-
-        # https://en.wikipedia.org/wiki/Associated_Legendre_polynomials
-        # c'est quoi la normalization??
-
         # https://en.wikipedia.org/wiki/Table_of_spherical_harmonics
-
+        # https://en.wikipedia.org/wiki/Associated_Legendre_polynomials
+        # what is the normalization?
 
         # --- Ylm values (indices +1 vs C) ---
         n = 1

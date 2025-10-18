@@ -138,7 +138,7 @@ function sample!(streamlines,
     backend = KA.get_backend(seeds)
     nth = backend isa KA.GPU ? gputhreads : nthreads
     kernel! = _sample_kernel_diffusion!(backend, nth)
-    @time "kernel-Diffusion" kernel!(
+    @time "kernel-diffusion" kernel!(
                             streamlines,
                             streamlines_length,
                             alg,
@@ -159,7 +159,7 @@ function sample!(streamlines,
                             get_γ_noise(alg),
                             cache.dΩ,
                             nx, ny, nz,
-                            model.evaluation_algo isa PreComputeAllODF,
+                            Val(model.evaluation_algo isa PreComputeAllODF),
                             Val(~(alg isa Connectivity)),
                             ndrange = Nmc
                             )
@@ -177,19 +177,19 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
                             @Const(∫odf::AbstractArray{𝒯, 3}),
                             @Const(directions::AbstractMatrix{𝒯}),
                             @Const(tf),
-                            nₜ,
-                            maxodf_start,
-                            reverse_direction,
-                            proba_min,
-                            dt::𝒯,
-                            saveat::Int,
-                            γ::𝒯,
-                            γn::𝒯,
-                            dΩ,
+                            @Const(nₜ),
+                            @Const(maxodf_start),
+                            @Const(reverse_direction),
+                            @Const(proba_min::𝒯),
+                            @Const(dt::𝒯),
+                            @Const(saveat::Int),
+                            @Const(γ::𝒯),
+                            @Const(γn::𝒯),
+                            @Const(dΩ),
                             nx, ny, nz,
-                            @Const(precomputed_odf::Bool),
+                            _precomputed_odf::Val{precomputed_odf},
                             save_full_streamlines::Val{save_full_streamline},
-                            ) where {𝒯, save_full_streamline}
+                            ) where {𝒯, save_full_streamline, precomputed_odf}
     # index of the streamline being computed
     nₙₘ = @index(Global)
 
@@ -230,14 +230,10 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
     streamlines[2, 1, nₙₘ] = x₂
     streamlines[3, 1, nₙₘ] = x₃
 
-    # euler scheme parameters
-    sdt::𝒯 = sqrt(dt)
-
     conditioned_proba = zero(𝒯)
-    F = ∫F = Fθ = Fϕ = t = hx = ∂ = zero(𝒯)
-
+    F = ∫F = Fθ = Fϕ = hx = ∂ = zero(𝒯)
+    st = ct = sp = cp = zero(𝒯)
     θᵢ, ϕᵢ = euclidean_to_spherical(u₁, u₂, u₃)
-
     iₛₐᵥₑ = one(UInt32)
 
     for iₜ = UInt32(2):nₜ
@@ -259,14 +255,17 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
                 F  =  fodf[ind_u, voxel₁, voxel₂, voxel₃]
                 Fθ = ∂θodf[ind_u, voxel₁, voxel₂, voxel₃]
                 Fϕ = ∂ϕodf[ind_u, voxel₁, voxel₂, voxel₃]
+                ∫F =  ∫odf[voxel₁, voxel₂, voxel₃]
+                st, ct = sincos(θᵢ)
+                sp, cp = sincos(ϕᵢ)
             else
                 F, Fϕ, Fθ = ishtmtx_dot(ϕᵢ, θᵢ, @view fodf[:, voxel₁, voxel₂, voxel₃])
                 ∂ = ∂softplus(F, 100f0)
                 F =  softplus(F, 100f0)
                 Fθ *= ∂
                 Fϕ *= ∂
+                ∫F = fodf[1, voxel₁, voxel₂, voxel₃]
             end
-            ∫F =  precomputed_odf ? ∫odf[voxel₁, voxel₂, voxel₃] : fodf[1, voxel₁, voxel₂, voxel₃]
             continue_tracking = ∫F > proba_min # recall ∫F ∈ [0, 1]
         end
 
@@ -301,7 +300,6 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
             x₁ += hx * u₁
             x₂ += hx * u₂
             x₃ += hx * u₃
-            t += hx
         else
             streamlines_length[nₙₘ] = iₛₐᵥₑ - 1
             if ~save_full_streamline
@@ -312,7 +310,6 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
         end
 
         if mod(iₜ, saveat) == 0
-            t -= saveat
             if save_full_streamline
                 streamlines[1, iₛₐᵥₑ, nₙₘ] = x₁
                 streamlines[2, iₛₐᵥₑ, nₙₘ] = x₂

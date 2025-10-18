@@ -131,7 +131,7 @@ $(TYPEDEF)
 Structure to encode a cone to limit sampling the direction. 
 This ensures that the angle in degrees between to consecutive streamline directions is less than `angle`.
 
-The implemented condition is for `cn = Cone(angle)`
+The implemented condition is for `cn = Cone(angle)`.
 
 ```
 (cn::Cone)(d1, d2) = dot(d1, d2) > cosd(cn.alpha)
@@ -184,13 +184,18 @@ $(TYPEDFIELDS)
     "Probability below which we stop tracking."
     proba_min::𝒯 = 0.0f0
     "Mollifier, used to make the fodf non negative. During odf evaluation, we effectively use `mollifier(fodf[angle,i,j,k])`."
-    mollifier::𝒯mol = default_mollifier
+    mollifier::𝒯mol = max_mollifier
 end
 @inline getdata(model::TMC) = model.odfdata
 Base.size(model::TMC) = size(getdata(model))
 Base.eltype(model::TMC{𝒯}) where 𝒯 = 𝒯
 @inline get_lmax(model::TMC) = get_lmax(getdata(model))
-default_mollifier(x) = max(0, x)
+"""
+$(SIGNATURES)
+
+`max(x,0)` as mollifier to prevent negative ODF.
+"""
+max_mollifier(x) = max(0, x)
 get_range(model::TMC) = get_range(getdata(model))
 get_array(model::TMC) = _get_array(getdata(model))
 

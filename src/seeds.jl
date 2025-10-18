@@ -27,7 +27,7 @@ function from_odf(model::TMC{𝒯}, n_seeds::Int; n_sphere = 1000) where {𝒯}
         for k = 1:3
             seeds[k, i] = position[k] + rand(𝒯) - 𝒯(1//2)
         end
-        # sample direction
+        # sample direction, slow because not row major
         @views mul!(odf, cache.Yₗₘ, odfs[I[1], I[2], I[3], :])
         t = rand(𝒯) * 𝒯(sum(odf))
         cw = zero(𝒯)
