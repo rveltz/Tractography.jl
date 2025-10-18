@@ -2,7 +2,7 @@ module Tractography
     using DocStringExtensions
     using Accessors
     using NIfTI
-    using Parameters, StatsBase, LinearAlgebra
+    using Parameters, LinearAlgebra
     import StaticArrays as SA
     using LoopVectorization
     import FastTransforms
