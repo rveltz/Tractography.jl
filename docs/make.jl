@@ -29,7 +29,11 @@ makedocs(
                 "gpu.md",
         ],
         "Algorithms" => "algos.md",
-        "Plotting" => "plot.md",
+        "Functionalities" => [
+                "plot.md",
+                "connectivity.md",
+                "seeds.md",
+        ],
         "Library" => "library.md"
     ],
     repo = Documenter.Remotes.GitHub("rveltz", "Tractography.jl"), # shows GH link in top right position
