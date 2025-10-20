@@ -6,4 +6,5 @@ using Test
     include("cache.jl")
     include("data.jl")
     include("sh.jl")
+    include("plot.jl")
 end

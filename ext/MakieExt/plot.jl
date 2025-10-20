@@ -80,83 +80,6 @@ The optional parameters are passed to `lines!`
             )
     return ax
 end
-
-function find_consecutive_equal_groups(lst)
-    groups = []
-    current_group = [1]
-
-    for i in 2:length(lst)
-        if lst[i] == lst[i-1]
-            push!(current_group, i)
-        else
-            push!(groups, current_group)
-            current_group = [i]
-        end
-    end
-    push!(groups, current_group)  # Add the last group
-
-    return [g for g in groups if length(g) > 1]  # Filter out single elements
-end
-
-function analyse_streamline(model,
-                            cache,
-                            streamlines,
-                            ind_stream; 
-                            apply_odf = identity,
-                            show_streamline = true,
-                            show_cone = false,
-                            n_voxels = 25,
-                            k...)
-    voxels = [get_voxel_gpu(model.odfdata.transform, streamlines[1:3, i, ind_stream]) for i in axes(streamlines, 2)]
-    u_voxels = unique(voxels)
-    Ig = find_consecutive_equal_groups(voxels); Ig = Ig[1:min(n_voxels, length(Ig))]
-    Lm = length(Ig)
-    rows, cols = ceil(Lm / 5), 5
-
-    fig = Figure(size = (1000, 2000))
-    set_theme!(theme_black(), textcolor = :white)
-
-    angles_d = cache.angles
-    directions = cache.directions
-
-    for (ii,I) in pairs(Ig)
-        voxel = voxels[I[1]]
-        odf =  cache.odf[:, voxel...]
-        row, col = divrem(ii - 1, cols) .+ 1
-
-        ax = Axis(fig[row, col], subtitle = "$ii - $voxel - L=$(length(I))")
-        hm = scatter!(ax, angles_d; color = apply_odf.(odf), colormap = :viridis, k...)
-
-        if show_cone
-            t,p = streamlines[4:5, I[end], ind_stream]
-            last_point = spherical_to_euclidean(t,p)
-            ang_cone = ([angles_d[k,:] for k in axes(angles_d, 1) if model.C(last_point, spherical_to_euclidean(angles_d[k,1], angles_d[k,2]))])
-            ang_cone = mapreduce(x->[x...]', vcat, ang_cone)
-            scatter!(ax, ang_cone, color = :white, alpha = 0.5)
-        end
-        
-        # ind_u = Int.(streamlines[6, I, ind_stream])
-        # if length(ind_u) > 2 && ii>1
-        #     for k in eachindex(ind_u)[2:end]
-        #         # @error "" ii k I[k] I[k-1] ind_u[1:k] ind_u[k-1] model.C(directions[ind_u[k]], directions[ind_u[k-1]]) cache.cone[ind_u[k],ind_u[k-1]]
-        #         @assert model.C(directions[ind_u[k],:], directions[ind_u[k-1],:])
-        #     end
-        # end
-
-        if show_streamline
-            Nt = length(I)
-            Θ = streamlines[4,I,ind_stream]
-            Φ = mod.(streamlines[5,I,ind_stream],2pi)
-            scatter!(ax, Θ, Φ, colormap = :reds, color = 1:Nt)
-            lines!(ax, Θ, Φ, color = :red)
-        end
-
-        ax.xticklabelsvisible = row == rows
-        ax.yticklabelsvisible = col == 1
-        # Colorbar(fig[1,2],hm)
-    end
-    fig
-end
 ####################################################################################################
 function plot_odf(model::TMC; k...)
     f = Figure(backgroundcolor = :black)
@@ -369,13 +292,14 @@ function plot_slice!(ax, model;
     end
 
     if slice
-        hm = heatmap!(ax, axe1,
-                          axe2,
-                          ni.data[Ih, Jh, Kh, 1]; 
-                          colormap = :grays, 
-                          transformation = (plane, lplane), 
-                          interpolate, 
-                          alpha)
+        hm = heatmap!(ax, 
+                      axe1,
+                      axe2,
+                      ni.data[Ih, Jh, Kh, 1]; 
+                      colormap = :grays, 
+                      transformation = (plane, lplane), 
+                      interpolate, 
+                      alpha)
         # translate!(hm, Vec3f(Is[1], Js[1], Ks[1]+1))
     end
 
