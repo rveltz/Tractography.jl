@@ -37,7 +37,8 @@ abstract type AbstractSampler end
 abstract type AbstractNotPureRejectionSampler <: AbstractSampler end
 # Deterministic samplers
 abstract type DeterministicSampler <: AbstractNotPureRejectionSampler end
-abstract type AbstractSDESampler <: AbstractSampler end
+# sampling based on SDE
+abstract type AbstractSDESampler{T} <: AbstractSampler end
 
 """
 $(TYPEDEF)
@@ -94,15 +95,11 @@ If you want `Float64`, you have to pass the two scalars
 
     ```Diffusion(γ = 1.0, γ_noise = 1.0)```
 """
-@with_kw_noshow struct Diffusion{Ta, T, Tk, Tmol, Tdmol} <: AbstractSDESampler
-    "SciML algorithm used to simulate the tractography diffusion process."
-    alg_sde::Ta = nothing
-    "γ parameter of the diffusion process."
+@with_kw_noshow struct Diffusion{T, Tmol, Tdmol} <: AbstractSDESampler{T}
+    "γ parameter of the diffusion process. It is related to the curvature of the streamline."
     γ::T = 1f0
     "parameter of the diffusion process to scale the variance."
     γ_noise::T = 1f0
-    "keyword arguments passed to alg_sde."
-    kw_sde::Tk = nothing
     "mollifier."
     mollifier::Tmol = Base.Fix2(softplus, 10)
     "differential of mollifier."
@@ -122,21 +119,31 @@ is_adaptive(alg::Connectivity) = is_adaptive(_get_alg(alg))
 $(TYPEDSIGNATURES)
 
 Define a transport algorithm. Options are the same as for `Diffusion`.
-"""
-function Transport(;kwargs...)
-    alg = Diffusion(;kwargs...)
-    @reset alg.γ_noise = zero(alg.γ_noise)
-end
 
-function Base.show(io::IO, alg::Diffusion{Ta, T}) where {Ta, T}
-    printstyled(io, "Diffusion [$T]" ; bold = true, color = :cyan)
+# Arguments (with default values):
+$(TYPEDFIELDS)
+"""
+@with_kw_noshow struct Transport{T, Tmol, Tdmol} <: AbstractSDESampler{T}
+    "γ parameter of the diffusion process. It is related to the curvature of the streamline."
+    γ::T = 1f0
+    "mollifier."
+    mollifier::Tmol = Base.Fix2(softplus, 10)
+    "differential of mollifier."
+    d_mollifier::Tdmol = Base.Fix2(∂softplus, 10)
+    "Fixed time step?"
+    adaptive::Bool = false
+end
+get_γ_noise(alg::Transport{T}) where {T} = zero(T)
+
+function Base.show(io::IO, alg::AbstractSDESampler{T}) where {T}
+    printstyled(io, "$(typeof(alg).name.name) [$T]" ; bold = true, color = :cyan)
     printstyled(io, " sampling algorithm\n", color = :cyan)
     println(io, "├─ adaptive = ", is_adaptive(alg))
-    println(io, "├─ alg      = ", alg.alg_sde)
-    println(io, "├─ γ        = ", get_γ(alg))
-    println(io, "└─ γ_noise  = ", get_γ_noise(alg))
-    if ~isnothing(alg.kw_sde)
-        println(io, "kw = ", alg.kw_sde)
+    if alg isa Diffusion
+        println(io, "├─ γ        = ", get_γ(alg))
+        println(io, "└─ γ_noise  = ", get_γ_noise(alg))
+    else
+        println(io, "└─ γ        = ", get_γ(alg))
     end
 end
 ####################################################################################################

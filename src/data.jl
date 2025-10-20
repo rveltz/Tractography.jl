@@ -140,6 +140,7 @@ function Base.show(io::IO, ni::ODFData{T, Tp}; full::Bool = false, prefix = "") 
     println(prefix * " ├─ File name   = ", ni.filename)
     println(prefix * " ├─ lmax (SH)   = ", ni.lmax)
     println(prefix * " ├─ Dimensions  = ", size(ni.data))
+    println(prefix * " ├─ normalized  = ", ni.normalized)
     if ni.data isa NIfTI.NIVolume
         println(prefix * " ├─ Voxel size  = ", ni.data.header.pixdim[1:4])
         println(prefix * " ├─ Orientation = ", NIfTI.orientation(ni.data))

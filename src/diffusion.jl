@@ -17,9 +17,9 @@ function Exp𝕊²(p, X, t)
 end
 ####################################################################################################
 function init(model::TMC{𝒯, DirectSH}, 
-                alg::Union{Diffusion, Connectivity{ <: Diffusion}}; 
+                alg::Union{Talg, Connectivity{ Talg}}; 
                 𝒯ₐ = Array{𝒯},
-                n_sphere = 0) where {𝒯}
+                n_sphere = 0) where {𝒯, Talg <: AbstractSDESampler}
     ni =  𝒯.(get_array(model))
     cache_cpu = TMCCache(; n_sphere, angles = 0, lmax = get_lmax(model), dΩ = zero(𝒯))
     odf = permutedims(ni, (4, 1, 2, 3))
@@ -40,7 +40,7 @@ function init(model::TMC{𝒯, DirectSH},
 end
 
 function _init(model::TMC{𝒯, PreComputeAllODF}, 
-                alg::Diffusion; 
+                alg::AbstractSDESampler; 
                 n_sphere = 400) where 𝒯
     # we want to differentiate wrt (θ,ϕ) the expression mollifier(fodf(θ,ϕ))
     # the expression is ∂mollifier(fodf(θ,ϕ)) * ∂fodf(θ,ϕ)
@@ -85,10 +85,10 @@ function _init(model::TMC{𝒯, PreComputeAllODF},
 end
 
 function init(model::TMC{𝒯},
-                alg::Union{Diffusion, Connectivity{ <: Diffusion}};
+                alg::Union{Talg, Connectivity{ Talg}}; 
                 n_sphere = 400,
                 𝒯ₐ = Array{𝒯},
-                ) where 𝒯
+                ) where {𝒯, Talg <: AbstractSDESampler}
     cache_cpu = _init(model, _get_alg(alg); n_sphere)
     # do not copy the array if the types are the same
     _is_on_cpu = cache_cpu.odf isa 𝒯ₐ
@@ -112,7 +112,7 @@ function sample!(streamlines,
                 streamlines_length::AbstractArray{UInt32, 1},
                 model::TMC{𝒯}, 
                 cache::AbstractCache, 
-                alg::Union{Diffusion, Connectivity{ <: Diffusion}},
+                alg::Union{Talg, Connectivity{ Talg}},
                 seeds;
                 maxodf_start::Bool = false,
                 reverse_direction::Bool = false,
@@ -120,7 +120,7 @@ function sample!(streamlines,
                 gputhreads = 512,
                 nₜ = size(streamlines, 2),
                 saveat::Int = 1,
-                𝒯ₐ = Array) where {𝒯}
+                𝒯ₐ = Array) where {𝒯, Talg <: AbstractSDESampler}
     Nmc = size(seeds, 2)
     if size(seeds, 1) != 6 
         error("The initial positions must be passed as an 6 x N array.")
@@ -169,7 +169,7 @@ end
 KA.@kernel inbounds=false function _sample_kernel_diffusion!(
                             streamlines::AbstractArray{𝒯, 3},
                             streamlines_length::AbstractArray{UInt32, 1},
-                            alg,
+                            alg::AbstractSDESampler{𝒯},
                             @Const(seeds::AbstractMatrix{𝒯}),
                             @Const( fodf::AbstractArray{𝒯, 4}),
                             @Const(∂θodf::AbstractArray{𝒯, 4}),
@@ -279,7 +279,6 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
             eϕ = SA.SVector(-sp, cp, 0) # remove the sin(θ) with Fϕ
 
             drift = Fθ * eθ + Fϕ * eϕ
-            noise = randn(𝒯) * eθ + randn(𝒯) * eϕ
 
             # 19-AAP1507
             if is_adaptive(alg)
@@ -288,7 +287,12 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
                 hx = dt
             end
 
-            tangent = (γ * hx / F) * drift + (sqrt(2γ * hx) * γn) * noise
+            if alg isa Transport
+                tangent = (γ * hx / F) * drift
+            else
+                noise = randn(𝒯) * eθ + randn(𝒯) * eϕ
+                tangent = (γ * hx / F) * drift + (sqrt(2γ * hx) * γn) * noise
+            end
 
             # Geometric-Euler scheme
             u₁, u₂, u₃ = Exp𝕊²(D, tangent, one(𝒯)) # injectivity radius

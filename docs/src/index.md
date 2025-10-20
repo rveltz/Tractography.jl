@@ -21,8 +21,7 @@ Similar algorithms as the ones provided here are implemented in the python packa
 
 [https://gitlab.inria.fr/cronos/software/tractography](https://gitlab.inria.fr/cronos/software/tractography)
 
-There are several good softwares already available.
-
+There are several good softwares already available. There are listed on the [IST website](https://github.com/International-Society-for-Tractography/ist-tractography-db?tab=readme-ov-file#tractography--diffusion-software).
 
 - [DIPY](https://dipy.org)
 - [DSI-studio](https://dsi-studio.labsolver.org)
