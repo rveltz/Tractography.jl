@@ -17,6 +17,7 @@ TG.get_range(model.odfdata)
 TG._get_array(zeros(2))
 TG._my_typeof(1)
 
-TG.from_odf(model, 10)
+TG.from_odf(model, 10; maxodf_start = false)
+TG.from_odf(model, 10; maxodf_start = true)
 mask = model.odfdata.data[:,:,:,1].>0;
 TG.from_mask(model, mask, 10)

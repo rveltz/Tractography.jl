@@ -221,18 +221,14 @@ function Base.show(io::IO, model::TMC)
     if model.cone isa Cone
         println(io, " ├─ cone                = ", model.cone)
     end
-    if model isa TMC
-        println(io, " ├─ mollifier           = ", model.mollifier)
+    println(io, " ├─ mollifier           = ", model.mollifier)
+    println(io, " ├─ evaluation of SH    = ", model.evaluation_algo)
+    if model.odfdata isa ODFData
+        println(io, " └─ data : (lmax = $(get_lmax(model)))")
+        show(io, model.odfdata; prefix = "      ")
     end
-    if model isa TMC
-        println(io, " ├─ evaluation of SH    = ", model.evaluation_algo)
-        if model.odfdata isa ODFData
-            println(io, " └─ data : ⋯")
-            show(io, model.odfdata; prefix = "      ")
-        end
-        if model.odfdata isa AbstractArray
-            println(io, " └─ data                = ", typeof(model.odfdata))
-        end
+    if model.odfdata isa AbstractArray
+        println(io, " └─ data                = ", typeof(model.odfdata))
     end
 end
 

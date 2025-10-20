@@ -15,8 +15,8 @@ import Tractography as TG
 
 model = TG.TMC(Δt = 0.125f0,
             odfdata = TG.ODFData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
-            cone = TG.Cone(15),
-            proba_min = 0.005f0,
+            cone = TG.Cone(45),
+            proba_min = 0.015f0,
             )
 ```
 
@@ -46,15 +46,8 @@ TG._apply_mask!(model, mask);
 We compute `Nmc` streamlines, hence we need `Nmc` seeds
 
 ```@example FCUP
-using LinearAlgebra
-
 Nmc = 100_000
-_ind1 = findall(mask .== 1)
-seed_id = rand(1:length(_ind1), Nmc)
-seeds = zeros(Float32, 6, Nmc)
-for i=1:Nmc
-    seeds[:,i] .= vcat(TG.transform(model.odfdata, _ind1[seed_id[i]])[1:3]..., normalize(randn(3)))
-end
+seeds = TG.from_odf(model, Nmc; maxodf_start = true)
 ```
 
 # Compute the streamlines
@@ -64,9 +57,18 @@ streamlines, tract_length = TG.sample(model, TG.Deterministic(), seeds; nt = 100
 println("Dimension of computed streamlines = ", size(streamlines))
 ```
 
+# plot the streamlines
+
 ```@example FCUP
-f, sc = @time TG.plot_odf(model; n_sphere = 500, radius = 0.3, st = 2);
-TG.plot_streamlines!(sc, streamlines[1:3, 1:1:end, 1:10:Nmc])
+f, scene = @time TG.plot_odf(model; n_sphere = 500, radius = 0.3, st = 1);
+ind_st = findall(tract_length .> 60)
+TG.plot_streamlines!(scene, streamlines[:, :, ind_st[1:10:end]])
+f
+```
+
+We can also add the seeds
+```@example FCUP
+scatter!(scene, seeds[1:3, ind_st[1:10:end]], color = :white)
 f
 ```
 
