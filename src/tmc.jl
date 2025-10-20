@@ -61,22 +61,6 @@ struct Deterministic <: DeterministicSampler end
 """
 $(TYPEDEF)
 
-Tractography based sampling of structural connectivity. 
-Do not compute the full streamline but only return the first/last points and the streamlines lengths. This allows to compute many more streamlines on GPU where memory is limited.
-
-## Constructor example
- - `Connectivity(Probabilistic())`
-"""
-struct Connectivity{Talg} <: AbstractSampler
-    alg::Talg
-end
-
-_get_alg(alg) = alg
-_get_alg(alg::Connectivity) = alg.alg
-
-"""
-$(TYPEDEF)
-
 Tractography sampling performed with diffusive model. Basically, the streamlines (Xₜ)ₜ are solution of the SDE
 
 dXₜ = γ * drift(Xₜ) dt + γ_noise * √γ * dnoiseₜ
@@ -146,6 +130,22 @@ function Base.show(io::IO, alg::AbstractSDESampler{T}) where {T}
         println(io, "└─ γ        = ", get_γ(alg))
     end
 end
+
+"""
+$(TYPEDEF)
+
+Tractography based sampling of structural connectivity. 
+Do not compute the full streamline but only return the first/last points and the streamlines lengths. This allows to compute many more streamlines on GPU where memory is limited.
+
+## Constructor example
+ - `Connectivity(Probabilistic())`
+"""
+struct Connectivity{Talg} <: AbstractSampler
+    alg::Talg
+end
+
+_get_alg(alg) = alg
+_get_alg(alg::Connectivity) = alg.alg
 ####################################################################################################
 """
 $(TYPEDEF)

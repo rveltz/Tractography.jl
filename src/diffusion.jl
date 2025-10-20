@@ -112,7 +112,7 @@ function sample!(streamlines,
                 streamlines_length::AbstractArray{UInt32, 1},
                 model::TMC{𝒯}, 
                 cache::AbstractCache, 
-                alg::Union{Talg, Connectivity{ Talg}},
+                alg::Union{Talg1, Connectivity{ Talg2}},
                 seeds;
                 maxodf_start::Bool = false,
                 reverse_direction::Bool = false,
@@ -120,7 +120,7 @@ function sample!(streamlines,
                 gputhreads = 512,
                 nₜ = size(streamlines, 2),
                 saveat::Int = 1,
-                𝒯ₐ = Array) where {𝒯, Talg <: AbstractSDESampler}
+                𝒯ₐ = Array) where {𝒯, Talg1 <: AbstractSDESampler, Talg2 <: AbstractSDESampler}
     Nmc = size(seeds, 2)
     if size(seeds, 1) != 6 
         error("The initial positions must be passed as an 6 x N array.")
@@ -141,7 +141,7 @@ function sample!(streamlines,
     @time "kernel-diffusion" kernel!(
                             streamlines,
                             streamlines_length,
-                            alg,
+                            _get_alg(alg),
                             seeds,
                             cache.odf,
                             cache.∂θodf,
