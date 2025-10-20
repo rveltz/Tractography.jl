@@ -33,6 +33,7 @@ makedocs(
                 "plot.md",
                 "connectivity.md",
                 "seeds.md",
+                "export.md",
         ],
         "Library" => "library.md"
     ],

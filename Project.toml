@@ -21,9 +21,11 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [weakdeps]
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 
 [extensions]
 MakieExt = ["Makie"]
+PythonExt = ["PythonCall"]
 
 [compat]
 Accessors = "^0.1"
@@ -37,6 +39,7 @@ Makie = "^0.21, ^0.22, 0.23, 0.24"
 NIfTI = "0.5.9, ^0.6"
 Parameters = "^0.12.3"
 ProgressMeter = "^1.11.0"
+PythonCall = "^0.9.28"
 Quickhull = "^0.2.2"
 StaticArrays = "^1.9.15"
 julia = "1.10"
