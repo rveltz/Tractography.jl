@@ -76,6 +76,10 @@ Diffusion
 ```
 
 ```@docs
+Tractography.Transport
+```
+
+```@docs
 Tractography.Connectivity
 ```
 

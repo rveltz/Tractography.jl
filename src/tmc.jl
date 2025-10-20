@@ -37,6 +37,7 @@ abstract type AbstractSampler end
 abstract type AbstractNotPureRejectionSampler <: AbstractSampler end
 # Deterministic samplers
 abstract type DeterministicSampler <: AbstractNotPureRejectionSampler end
+abstract type AbstractSDESampler <: AbstractSampler end
 
 """
 $(TYPEDEF)
@@ -77,7 +78,11 @@ $(TYPEDEF)
 
 Tractography sampling performed with diffusive model. Basically, the streamlines (Xₜ)ₜ are solution of the SDE
 
-dXₜ = γ * drift dt + γ_noise * √γ * dnoiseₜ
+dXₜ = γ * drift(Xₜ) dt + γ_noise * √γ * dnoiseₜ
+
+where
+
+drift(Xₜ) = (Xₜ², ∇log f(Xₜ))
 
 # Arguments (with default values):
 $(TYPEDFIELDS)
@@ -89,7 +94,7 @@ If you want `Float64`, you have to pass the two scalars
 
     ```Diffusion(γ = 1.0, γ_noise = 1.0)```
 """
-@with_kw_noshow struct Diffusion{Ta, T, Tk, Tmol, Tdmol} <: AbstractSampler
+@with_kw_noshow struct Diffusion{Ta, T, Tk, Tmol, Tdmol} <: AbstractSDESampler
     "SciML algorithm used to simulate the tractography diffusion process."
     alg_sde::Ta = nothing
     "γ parameter of the diffusion process."
@@ -106,12 +111,22 @@ If you want `Float64`, you have to pass the two scalars
     adaptive::Bool = false
 end
 
-get_γ(alg::Diffusion) = alg.γ
+get_γ(alg::AbstractSDESampler) = alg.γ
 get_γ(alg::Connectivity) = get_γ(_get_alg(alg))
-get_γ_noise(alg::Diffusion) = alg.γ_noise
+get_γ_noise(alg::AbstractSDESampler) = alg.γ_noise
 get_γ_noise(alg::Connectivity) = get_γ_noise(_get_alg(alg))
-is_adaptive(alg::Diffusion) = alg.adaptive
+is_adaptive(alg::AbstractSDESampler) = alg.adaptive
 is_adaptive(alg::Connectivity) = is_adaptive(_get_alg(alg))
+
+"""
+$(TYPEDSIGNATURES)
+
+Define a transport algorithm. Options are the same as for `Diffusion`.
+"""
+function Transport(;kwargs...)
+    alg = Diffusion(;kwargs...)
+    @reset alg.γ_noise = zero(alg.γ_noise)
+end
 
 function Base.show(io::IO, alg::Diffusion{Ta, T}) where {Ta, T}
     printstyled(io, "Diffusion [$T]" ; bold = true, color = :cyan)

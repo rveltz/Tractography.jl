@@ -37,3 +37,14 @@ The algorithm `alg = Probabilistic()` (see [`Tractography.Probabilistic`](@ref))
 $$\bm x_{i+1} = \bm x_i + \Delta s \bm u_i$$
 
 $$\bm u_{i+1} \sim g(\bm x_i, \bm u_i, \cdot)$$
+
+## 3. Diffusion
+
+The algorithm `alg = Diffusion()` (see [`Tractography.Diffusion`](@ref)) implement the following situation. It computes solution to the stochastic differential equation (SDE):
+$$d\bm x_tₜ = \bm u_t dt$$
+$$d\bm u_tₜ = γ \cdot \nabla\log ODF(\bm{x}_t, \bm u_t) dt + \gamma_{noise} \cdot \sqrt\gamma \cdot dB_t$$
+
+## 4. Transport
+
+Same as `Diffusion` but with $\gamma_{noise} = 0$.
+

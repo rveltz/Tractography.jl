@@ -15,7 +15,7 @@
 [ver-img]: https://juliahub.com/docs/Tractography/version.svg
 [ver-url]: https://juliahub.com/ui/Packages/Tractography/
 
-This Julia package implements different tractography algorithms on CPU / GPU.
+This Julia package implements different tractography algorithms from diffusion MRI and which run on CPU / GPU.
 
 
 ## 📦 Install
