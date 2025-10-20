@@ -40,6 +40,7 @@ for eval_alg in (Tractography.PreComputeAllODF(), Tractography.DirectSH())
                 proba_min = 0.0f0,
                 evaluation_algo =eval_alg,
                 )
+    Tractography.sample(model_diffusion, Tractography.Transport(), rand(Float32, 6, 2); nt = 10, maxodf_start = true, reverse_direction = true);
     Tractography.sample(model_diffusion, Tractography.Diffusion(), rand(Float32, 6, 2); nt = 10, maxodf_start = true, reverse_direction = true);
     Tractography.sample(model_diffusion, Tractography.Connectivity(Tractography.Diffusion()), rand(Float32, 6, 2); nt = 10, maxodf_start = true, reverse_direction = true);
     Tractography.sample(model, Tractography.Diffusion(adaptive = false), rand(Float32, 6, 2); nt = 10);
