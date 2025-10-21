@@ -4,7 +4,6 @@ Pages = ["getstart.md"]
 Depth = 3
 ```
 
-
 This tutorial will introduce you to the functionalities for computing streamlines.
 
 # Basic use
@@ -52,7 +51,6 @@ alg = Probabilistic()
 ```@example GS
 streamlines, tract_length = sample(model, alg, seeds);
 ```
-
 
 # Optimal use
 

@@ -1,4 +1,4 @@
-# Tractography algorithms
+# [Tractography algorithms](@id algos)
 
 ```@contents
 Pages = ["algos.md"]

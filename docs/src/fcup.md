@@ -20,7 +20,7 @@ model = TG.TMC(Δt = 0.125f0,
             )
 ```
 
-Just for fun, we plot the FODF of the model.
+Just for fun, we plot the FODs of the model.
 
 ```@example FCUP
 using CairoMakie

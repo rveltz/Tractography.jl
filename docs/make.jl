@@ -22,6 +22,7 @@ makedocs(
     authors = "Samuel Deslauriers-Gauthier and Romain Veltz",
     pages = Any[
         "Home" => "index.md",
+        "Overview of capabilities" => "overview-cap.md",
         "Getting started" => "getstart.md",
         "Tutorials" => [
                 # "basic.md",

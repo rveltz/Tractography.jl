@@ -1,6 +1,6 @@
 # Plotting 
 
-Plotting is provided by calling recipes to `Makie.jl`. Hence by loading `CairoMakie` or `GLMakie` or `WGLMakie`, you can use custom function to interact with FODF data.
+Plotting is provided by calling recipes to `Makie.jl`. Hence by loading `CairoMakie` or `GLMakie` or `WGLMakie`, you can use custom function to interact with FOD data.
 For this part, we use `CairoMakie` but the user is encouraged to use `GLMakie` instead.
 
 Let us start by reading some `nii` data.
@@ -41,7 +41,7 @@ streamlines = zeros(Float32, 6, 100, 20)
 for n = 1:20
     v0 = rand(3)*15
     for nt = 1:100
-        streamlines[1:3, nt, n] .= v0 + nt .* [1,1+0.1*rand(),0]
+        streamlines[1:3, nt, n] .= v0 .+ nt .* [1,1 + 0.1*rand(), 0]
     end
 end
 # plot the streamlines and the glyph
