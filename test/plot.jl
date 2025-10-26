@@ -8,7 +8,7 @@ model = Tractography.TMC(Δt = 0.125f0,
 
 streamlines, tract_length = Tractography.sample(model, 
                             Tractography.Deterministic(), 
-                            Tractography.from_odf(model, 10); 
+                            Tractography.from_fod(model, 10); 
                             nt = 100);
 
 f, sc = Tractography.plot_fod(model; n_sphere = 100, radius = 0.1, st = 2);
