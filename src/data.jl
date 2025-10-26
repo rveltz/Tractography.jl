@@ -25,30 +25,31 @@ end
 """
 $(TYPEDEF)
 
-Structure to hold ODF data.
+Structure to hold FOD data.
 
 # Fields
 $(TYPEDFIELDS)
 
 # Methods
-- `get_lmax(::FODData)`
-- `size(::FODData)` return the size of the data
-- `get_range(::FODData)` 
+- `get_lmax(::FODData)` returns the max `l` coordinate in of spherical harmonics.
+- `size(::FODData)` returns the size of the data.
+- `get_range(::FODData)` returns the range of the data in the real world coordinates.
 """
 struct FODData{𝒯, 𝒯d, 𝒯s, 𝒯t}
-    "filename from which the (odf) data is read."
+    "filename from which the (fod) data is read."
     filename::String
+    "field which contains the FOD data."
     data::𝒯d
     "max l coordinate in of spherical harmonics."
     lmax::Int
     "transform associated with data, see `Transform`."
     transform::Transform{𝒯s, 𝒯t}
-    "Are the data normalized? In this case odf[i,j,l,1] ∈ {0,1}."
+    "Are the data normalized? In this case `fod[i,j,l,1] ∈ {0,1}`."
     normalized::Bool
 end
 
 """
-max l coordinate in of spherical harmonics
+max `l` coordinate in of spherical harmonics.
 """
 @inline get_lmax(foddata::FODData) = foddata.lmax
 Base.size(foddata::FODData) = size(foddata.data)

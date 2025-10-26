@@ -1,9 +1,12 @@
 # Plotting 
 
-Plotting is provided by calling recipes to `Makie.jl`. Hence by loading `CairoMakie` or `GLMakie` or `WGLMakie`, you can use custom function to interact with FOD data.
-For this part, we use `CairoMakie` but the user is encouraged to use `GLMakie` instead.
+Plotting functionality is provided through `Makie.jl` recipes. By loading one of the Makie backends (`CairoMakie`, `GLMakie`, or `WGLMakie`), you can use custom functions to visualize FOD (Fiber Orientation Distribution) data.
 
-Let us start by reading some `nii` data.
+This tutorial uses `CairoMakie` for static plots, but `GLMakie` is recommended for interactive 3D visualization.
+
+## Setup
+
+Let's start by loading FOD data from a NIfTI file:
 
 ```@example PLOTTING
 using Tractography
@@ -16,9 +19,11 @@ model = TG.TMC(Δt = 0.125f0,
             )
 ```
 
-## Plotting the FODFs
+## Plotting FODFs
 
-We rely on the function `plot_fod!` and [`plot_fod!`](@ref) provides the information regarding the keyword arguments.
+To visualize Fiber Orientation Distribution Functions (FODFs), use the `plot_fod!` function. See the [`plot_fod!`](@ref) documentation for details on available keyword arguments.
+
+The following example plots FODFs for a specific region of interest:
 
 ```@example PLOTTING
 using CairoMakie
@@ -31,23 +36,27 @@ Makie.zoom!(sc.scene, cam3d, 0.10f0)  # hide
 f
 ```
 
-## Plotting the streamlines
+## Plotting Streamlines
 
-We rely on the function `plot_streamlines!` and [`plot_streamlines!`](@ref) provides the information regarding the keyword arguments.
+To visualize tractography streamlines, use the `plot_streamlines!` function. See the [`plot_streamlines!`](@ref) documentation for details on available keyword arguments.
+
+The following example creates synthetic streamlines and plots them alongside FODFs:
 
 ```@example PLOTTING
-# make some streamlines
+# Generate synthetic streamlines for demonstration
 streamlines = zeros(Float32, 6, 100, 20)
 for n = 1:20
-    v0 = rand(3)*15
+    v0 = rand(3) * 15  # Random starting position
     for nt = 1:100
-        streamlines[1:3, nt, n] .= v0 .+ nt .* [1,1 + 0.1*rand(), 0]
+        # Create curved trajectories
+        streamlines[1:3, nt, n] .= v0 .+ nt .* [1, 1 + 0.1*rand(), 0]
     end
 end
-# plot the streamlines and the glyph
+
+# Create a combined visualization of streamlines and FODFs
 f = Figure(backgroundcolor = :white)
-lscene = LScene(f[1,1])
+lscene = LScene(f[1, 1])
 TG.plot_streamlines!(lscene.scene, streamlines[1:3, 1:1:end, :])
-TG.plot_fod!(lscene, model; n_sphere = 1500, radius = 1.3, st = 4);
+TG.plot_fod!(lscene, model; n_sphere = 1500, radius = 1.3, st = 4)
 f
 ```

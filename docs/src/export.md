@@ -1,14 +1,39 @@
-# Saving `tck` files
+# Exporting Tractography Results
 
-Once a tractogram has been computed, it can be exported to a `tck` file using the python library `nibabel`. A convenience function is provided to ease this operation:
+After computing a tractogram, you can export streamlines to the TCK file format for use with other neuroimaging tools like MRtrix3, TrackVis, etc.
+
+## Saving to TCK Format
+
+The TCK format is a widely-used binary format for storing tractography streamlines. `Tractography.jl` provides a convenience function [`save_streamlines`](@ref) that uses the Python library `nibabel` via `PythonCall.jl` to export streamlines.
+
+### Prerequisites
+
+Ensure you have `PythonCall.jl` installed and `nibabel` available in your Python environment:
 
 ```julia
-import Tractography as TG
+using Pkg
+Pkg.add("PythonCall")
+```
+
+Then install `nibabel` in Python (this typically happens automatically via `PythonCall`).
+
+### Basic Example
+
+```julia
+using Tractography
+using PythonCall
+const TG = Tractography
 
 # ... model definition skipped
 streamlines, tract_length = TG.sample(model, alg_tracking, seeds)
 
-# save to tck file
-using PythonCall
-TG.save_streamlines("my_stream.tck", streamlines, tract_length)
+# Export to TCK file
+TG.save_streamlines("my_tractogram.tck", streamlines, tract_length)
 ```
+
+## Output Format
+
+The saved TCK file contains:
+- **Streamline coordinates**: 3D positions of points along each fiber tract
+
+The file can be visualized and analyzed using standard tractography software.
