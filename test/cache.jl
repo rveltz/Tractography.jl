@@ -3,7 +3,7 @@ using Tractography
 const TG = Tractography
 
 model = TMC(Δt = 0.125f0,
-            odfdata = ODFData("../examples/fod-FC.nii.gz"),
+            foddata = TG.FODData("../examples/fod-FC.nii.gz"),
             cone = Cone(45f0),
             )
 

@@ -15,7 +15,7 @@ function _init(model::TMC{𝒯, PlottingSH},
     _init_fibonacci_sh(model, n_sphere)
 end
 
-function _init(model::TMC{𝒯, PreComputeAllODF},
+function _init(model::TMC{𝒯, PreComputeAllFOD},
                 alg::AbstractNotPureRejectionSampler; 
                 n_sphere = 400) where {𝒯}
     cache = _init_fibonacci_sh(model, n_sphere)
@@ -32,7 +32,7 @@ function _build_cache_from_Y_matrix(model::TMC{𝒯}, cache, Ysv) where {𝒯}
     ni_v = reshape(ni, nx*ny*nz, nt)
     odf_v  = @time_debug "Mat-Vec:" ni_v * Ysv'; # vector view
     odf = reshape(odf_v, nx, ny, nz, na);
-    @time_debug "Mollifier:" @tturbo @. odf = model.mollifier(odf)
+    @time_debug "Mollifier:" LV.@tturbo @. odf = model.mollifier(odf)
     @reset cache.odf = permutedims(odf, (4,1,2,3))
     return cache
 end
@@ -51,7 +51,7 @@ Sample the TMC `model`.
 ## Optional arguments
 - `nt::Int` maximal number of steps to compute each streamline.
 - `n_sphere::Int = 400` number of points to discretize the sphere on which we evaluate the spherical harmonics.
-- `maxodf_start::Bool` for each locations, use direction provided by the argmax of the ODF.
+- `maxfod_start::Bool` for each locations, use direction provided by the argmax of the ODF.
 - `reverse_direction::Bool` reverse initial direction.
 - `nthreads::Int = 8` number of threads on CPU.
 - `gputhreads::Int = 512` number of threads on GPU.
@@ -66,7 +66,7 @@ function sample(model::TMC{𝒯},
                 mask::Union{Nothing, AbstractArray{Bool}} = nothing;
                 nt::Int = 1000,
                 n_sphere::Int = 400,
-                maxodf_start::Bool = false,
+                maxfod_start::Bool = false,
                 reverse_direction::Bool = false,
                 nthreads::Int = 8,
                 gputhreads::Int = 512,
@@ -87,7 +87,7 @@ function sample(model::TMC{𝒯},
             cache,
             alg,
             seeds;
-            maxodf_start,
+            maxfod_start,
             reverse_direction,
             nthreads,
             gputhreads,

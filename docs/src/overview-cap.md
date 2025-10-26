@@ -1,31 +1,44 @@
 # Overview of capabilities
 
-A general streamline generation pipeline consists of 
+A complete streamline generation workflow typically involves the following steps:
 
-1. estimate fibre orientation distributions (FOD),
-2. generate seeds from the FOD,
-3. run the tractography algorithm to generate streamlines.
+1. **Estimating fibre orientation distributions (FODs)**  
+2. **Generating seeds** from the estimated FODs  
+3. **Running tractography algorithms** to produce streamlines  
 
-The current package `Tractography.jl` addresses points 2 and 3, step 1 has to be performed by another library, for example [Fibers.jl](https://github.com/lincbrain/Fibers.jl).
+The `Tractography.jl` package focuses on steps **2** and **3**.  
+Step **1** — estimating FODs — should be performed using a dedicated library, such as [Fibers.jl](https://github.com/lincbrain/Fibers.jl).
 
+---
 
-## Seeds generation
+## Seed Generation
 
-The seeds can be generated using the methods [`Tractography.from_odf`](@ref) and [`Tractography.from_mask`](@ref). 
+Seeds can be generated directly from the FOD or from a binary mask using the following methods:
 
-## Tracking algorithms
+- [`Tractography.from_fod`](@ref)  
+- [`Tractography.from_mask`](@ref)
 
-- 4 tracking algorithms are provided, see [pages algos](@ref algos).
-- the algorithms run on GPU or on CPU (threaded), vendor agnostic.
-- interface is provided such that once a cache has been precomputed, the algorithms are allocation free. They can thus be ran as long as necessary.
-- the computation can be run in arbitrary precision `Float32, Float64, BigFloat, ...`. 
+---
+
+## Tracking Algorithms
+
+- Four tracking algorithms are currently implemented (see [Algorithms](@ref algos)).  
+- All algorithms can run on either **GPU** or **CPU (threaded)**, and are **vendor-agnostic**.  
+- The interface supports **precomputed caches**, making the algorithms **allocation-free** during execution. This allows for efficient, long-duration runs.  
+- Computations support **arbitrary floating-point precision** (`Float32`, `Float64`, `BigFloat`, ...).
+
+---
 
 ## Plotting
 
-We provide plotting capabilities to 
-- view streamlines,
-- plot the FODs using glyphs. 
+The package provides convenient plotting utilities to:
 
-## Exporting streamlines
+- Visualize streamlines  
+- Display FODs using glyph-based representations  
 
-We provide a method to export the results in `tck` format. Of course, the user can use Julia package (*e.g.*  `JLD2.jl`) to export to their preferred format.
+---
+
+## Exporting Streamlines
+
+Generated streamlines can be exported in the **`.tck`** format.  
+Alternatively, users can export data to any preferred format using standard Julia packages (e.g. `JLD2.jl`).

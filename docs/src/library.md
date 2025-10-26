@@ -12,7 +12,7 @@ Depth = 3
 ## Seeds
 
 ```@docs
-Tractography.from_odf
+Tractography.from_fod
 ```
 
 ```@docs
@@ -52,7 +52,7 @@ Tractography.PlottingSH
 ```
 
 ```@docs
-Tractography.PreComputeAllODF
+Tractography.PreComputeAllFOD
 ```
 
 ## Models
@@ -104,7 +104,7 @@ Tractography.plot_streamlines!
 ```
 
 ```@docs
-Tractography.plot_odf!
+Tractography.plot_fod!
 ```
 
 ```@docs

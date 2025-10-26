@@ -10,7 +10,7 @@ using Tractography
 const TG = Tractography
 
 model = TG.TMC(Δt = 0.125f0,
-            odfdata = TG.ODFData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
+            foddata = TG.FODData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
             cone = TG.Cone(15f0),
             proba_min = 0.005f0,
             )
@@ -18,11 +18,11 @@ model = TG.TMC(Δt = 0.125f0,
 
 ## Plotting the FODFs
 
-We rely on the function [`plot_odf!`](@ref) provides the information regarding the keyword arguments.
+We rely on the function `plot_fod!` and [`plot_fod!`](@ref) provides the information regarding the keyword arguments.
 
 ```@example PLOTTING
 using CairoMakie
-f, sc = TG.plot_odf(model; n_sphere = 1500, radius = 1., I = 29:31, J = 30:31, K = 2:2);
+f, sc = TG.plot_fod(model; n_sphere = 1500, radius = 1., I = 29:31, J = 30:31, K = 2:2);
 cam3d = Makie.cameracontrols(sc) # hide
 cam3d.eyeposition[] = Vec3f(96.91587149289712, 85.36944962225634, -85.12319118529459)  # hide
 cam3d.lookat[] = Vec3f(95.90360332812566, 85.36944962225634, 2.943478780350152)  # hide
@@ -33,7 +33,7 @@ f
 
 ## Plotting the streamlines
 
-We rely on the function [`plot_streamlines!`](@ref) provides the information regarding the keyword arguments.
+We rely on the function `plot_streamlines!` and [`plot_streamlines!`](@ref) provides the information regarding the keyword arguments.
 
 ```@example PLOTTING
 # make some streamlines
@@ -48,6 +48,6 @@ end
 f = Figure(backgroundcolor = :white)
 lscene = LScene(f[1,1])
 TG.plot_streamlines!(lscene.scene, streamlines[1:3, 1:1:end, :])
-TG.plot_odf!(lscene, model; n_sphere = 1500, radius = 1.3, st = 4);
+TG.plot_fod!(lscene, model; n_sphere = 1500, radius = 1.3, st = 4);
 f
 ```

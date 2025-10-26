@@ -1,6 +1,3 @@
-using Accessors, GeometryBasics
-import Quickhull
-
 function _correct_normals!(pts, faces)
     @assert size(faces)[2] == 3
     for i in axes(faces, 1)  
@@ -81,7 +78,7 @@ The optional parameters are passed to `lines!`
     return ax
 end
 ####################################################################################################
-function plot_odf(model::TMC; k...)
+function plot_fod(model::TMC; k...)
     f = Figure(backgroundcolor = :black)
     lscene = LScene(f[1,1], scenekw = (lights = [
                             AmbientLight(RGBf(1, 1, 1)), 
@@ -89,7 +86,7 @@ function plot_odf(model::TMC; k...)
                             DirectionalLight(RGBf(1, 1, 1), Vec3f(-1, 0, -1))
                         ],)
                 )
-    plot_odf!(lscene, model; k...)
+    plot_fod!(lscene, model; k...)
     f, lscene
 end
 
@@ -99,7 +96,7 @@ $(SIGNATURES)
 Plot the the ODF with glyphs.
 
 ## See also
-- `plot_odf(model; kwargs...)`
+- `plot_fod(model; kwargs...)`
 
 ## Arguments
 - `model::TMC`
@@ -109,7 +106,7 @@ Plot the the ODF with glyphs.
 
 ## Optional arguments
 """
-function plot_odf!(ax, model::TMC{𝒯} ; 
+function plot_fod!(ax, model::TMC{𝒯} ; 
                     n_sphere = 10,
                     radius = 0.1,
                     st = 4,
@@ -253,7 +250,7 @@ function plot_slice!(ax, model;
 
     # do we plot the glyphs?
     if odf
-        @time_debug "ODF" plot_odf!(ax, model; n_sphere, radius, 
+        @time_debug "ODF" plot_fod!(ax, model; n_sphere, radius, 
                     c0min,
                     I = Io,
                     J = Jo,

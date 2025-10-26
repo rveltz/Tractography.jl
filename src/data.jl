@@ -31,11 +31,11 @@ Structure to hold ODF data.
 $(TYPEDFIELDS)
 
 # Methods
-- `get_lmax(::ODFData)`
-- `size(::ODFData)` return the size of the data
-- `get_range(::ODFData)` 
+- `get_lmax(::FODData)`
+- `size(::FODData)` return the size of the data
+- `get_range(::FODData)` 
 """
-struct ODFData{𝒯, 𝒯d, 𝒯s, 𝒯t}
+struct FODData{𝒯, 𝒯d, 𝒯s, 𝒯t}
     "filename from which the (odf) data is read."
     filename::String
     data::𝒯d
@@ -50,19 +50,19 @@ end
 """
 max l coordinate in of spherical harmonics
 """
-@inline get_lmax(odfdata::ODFData) = odfdata.lmax
-Base.size(odfdata::ODFData) = size(odfdata.data)
+@inline get_lmax(foddata::FODData) = foddata.lmax
+Base.size(foddata::FODData) = size(foddata.data)
 _get_array(x::AbstractArray) = x
 _get_array(x::NIfTI.NIVolume) = x.raw
-_get_array(x::ODFData) = _get_array(x.data)
+_get_array(x::FODData) = _get_array(x.data)
 _my_typeof(x) = typeof(x)
 _my_typeof(x::NIfTI.NIVolume) = typeof(x.raw)
-is_normalized(odfdata) = odfdata.normalized
+is_normalized(foddata) = foddata.normalized
 
-function get_range(odfdata::ODFData)
-    nx, ny, nz, nt = size(odfdata)
-    lx, ly, lz = transform(odfdata, SA.SVector(1, 1, 1))
-    rx, ry, rz = transform(odfdata, SA.SVector(nx, ny, nz))
+function get_range(foddata::FODData)
+    nx, ny, nz, nt = size(foddata)
+    lx, ly, lz = transform(foddata, SA.SVector(1, 1, 1))
+    rx, ry, rz = transform(foddata, SA.SVector(nx, ny, nz))
     return sort(LinRange(lx, rx, nx)), 
            sort(LinRange(ly, ry, ny)),
            sort(LinRange(lz, rz, nz))
@@ -71,23 +71,23 @@ end
 """
 $(SIGNATURES)
 
-Constructor for `ODFData` based on Array data and transform.
+Constructor for `FODData` based on Array data and transform.
 
 ## Arguments
 - `data::AbstractArray{𝒯, 4}`
 """
-function ODFData(file_name, data::AbstractArray{𝒯, 4}, S::𝒯s, T::𝒯t, normalize_it::Bool) where {𝒯, 𝒯s, 𝒯t}
+function FODData(file_name, data::AbstractArray{𝒯, 4}, S::𝒯s, T::𝒯t, normalize_it::Bool) where {𝒯, 𝒯s, 𝒯t}
     Sinv = pinv(S)
-    lmax = get_lmax_from_odf_length(size(_get_array(data), 4))
-    ODFData{_my_typeof(data), typeof(data), 𝒯s, 𝒯t}(file_name, data, lmax, Transform(S, Sinv, T), normalize_it)
+    lmax = get_lmax_from_fod_length(size(_get_array(data), 4))
+    FODData{_my_typeof(data), typeof(data), 𝒯s, 𝒯t}(file_name, data, lmax, Transform(S, Sinv, T), normalize_it)
 end
-@inline transform(ni::ODFData, x) = transform(ni.transform, x)
-@inline transform_inv(ni::ODFData, x) = transform_inv(ni.transform, x)
+@inline transform(ni::FODData, x) = transform(ni.transform, x)
+@inline transform_inv(ni::FODData, x) = transform_inv(ni.transform, x)
 
 """
 $(SIGNATURES)
 
-Constructor for `ODFData` based on NII file.
+Constructor for `FODData` based on NII file.
 Read a `.nii.gz` or a `.nii` file passed as a `String`.
 
 The raw spherical harmonics are scaled so that the zero spherical harmonic coefficient is one (or zero).
@@ -100,9 +100,9 @@ show(stdout, ni; full = true)
 
 ## Output
 
-It returns a `ODFData` struct.
+It returns a `FODData` struct.
 """
-function ODFData(file::String; normalize_it::Bool = true, k...) 
+function FODData(file::String; normalize_it::Bool = true, k...) 
     data = niread(file; k...)
     # we normalize the ODF to have mass one
     if ~all(x-> x >= 0, data.raw[:,:,:,1]) 
@@ -115,7 +115,7 @@ function ODFData(file::String; normalize_it::Bool = true, k...)
     A = NIfTI.getaffine(data.header)
     S = SA.@SMatrix [A[i, j] for i = 1:4, j = 1:4]
     T = SA.@SVector [A[i, end] for i = 1:3]
-    return ODFData(file, data, S, T, normalize_it)
+    return FODData(file, data, S, T, normalize_it)
 end
 
 function _normalize_sph_data!(data)
@@ -135,7 +135,7 @@ end
 """
 $(SIGNATURES)
 """
-function Base.show(io::IO, ni::ODFData{T, Tp}; full::Bool = false, prefix = "") where {T, Tp} 
+function Base.show(io::IO, ni::FODData{T, Tp}; full::Bool = false, prefix = "") where {T, Tp} 
     printstyled(prefix, Tp, "\n", bold = true, color = :cyan)
     println(prefix * " ├─ File name   = ", ni.filename)
     println(prefix * " ├─ lmax (SH)   = ", ni.lmax)

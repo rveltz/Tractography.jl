@@ -15,7 +15,7 @@ using Tractography
 const TG = Tractography
 
 model = TMC(Δt = 0.125f0,
-            odfdata = ODFData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
+            foddata = FODData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
             )
 Nmc = 10
 seeds = rand(Float32, 6, Nmc)
@@ -30,7 +30,7 @@ We define a Tractography Markov Chain (TMC) model as follows:
 
 ```@example GS
 model = TMC(Δt = 0.125f0,
-            odfdata = ODFData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
+            foddata = FODData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
             )
 ```
 
@@ -58,7 +58,7 @@ It is often better to cache some data when computing batches of streamlines. Thi
 
 ```@example GS
 model = TMC(Δt = 0.125f0,
-            odfdata = ODFData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
+            foddata = FODData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
             )
 Nmc = 10
 seeds = rand(Float32, 6, Nmc)

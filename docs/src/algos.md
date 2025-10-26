@@ -5,13 +5,13 @@ Pages = ["algos.md"]
 Depth = 3
 ```
 
-The library provides several algorithms to compute the streamlines. More precisely, assume that we are given a field of fibre orientation distribution functions (FODF) 
+The library provides several algorithms to compute the streamlines. More precisely, assume that we are given a field of fibre orientation distribution (FOD) 
 
 $$\bm u\to ODF(\bm x,\bm u)$$
 
 where $ODF(\bm x,\cdot)$ is the distribution of directions at position $\bm x$.
 
-In practice, to prevent sharp direction changes, the full FODF is not considered at a given step. Typically, a new direction is obtained by sampling the FODF in a cone around the previous direction.  This can represented as a modification of the incoming direction $\bm{u} \in \mathbb{S}^2$
+In practice, to prevent sharp direction changes, the full FOD is not considered at a given step. Typically, a new direction is obtained by sampling the FOD in a cone around the previous direction.  This can represented as a modification of the incoming direction $\bm{u} \in \mathbb{S}^2$
 
 $$g(\bm{x}, \bm{u}, \bm{u}') = \frac{1}{N(\bm{x}, \bm{u})}f(\bm{x}, \bm{u}')c(\bm{u}, \bm{u}')$$
 
@@ -20,7 +20,7 @@ where $c(\bm{u}, \bm{u}') \in \mathbb{R}^+$ is non--zero in a cone around $\bm{u
 $$\int_{\mathbb{S}^2}g(\bm{x}, \bm{u}, \bm{u}')d\bm{u}' = 1.$$
 
 !!! tip "Cone"
-    The cone function is passed to a `TMC` via [`Tractography.TMC`](@ref). The `TMC` also determine how the FODF are computed, see [SH evaluation](@ref sheval).
+    The cone function is passed to a `TMC` via [`Tractography.TMC`](@ref). The `TMC` also determine how the FOD are computed, see [SH evaluation](@ref sheval).
 
 ## 1. Deterministic
 
@@ -41,7 +41,9 @@ $$\bm u_{i+1} \sim g(\bm x_i, \bm u_i, \cdot)$$
 ## 3. Diffusion
 
 The algorithm `alg = Diffusion()` (see [`Tractography.Diffusion`](@ref)) implement the following situation. It computes solution to the stochastic differential equation (SDE):
+
 $$d\bm x_tₜ = \bm u_t dt$$
+
 $$d\bm u_tₜ = γ \cdot \nabla\log ODF(\bm{x}_t, \bm u_t) dt + \gamma_{noise} \cdot \sqrt\gamma \cdot dB_t$$
 
 ## 4. Transport

@@ -4,18 +4,18 @@ module Tractography
     using NIfTI
     using Parameters, LinearAlgebra
     import StaticArrays as SA
-    using LoopVectorization
+    import LoopVectorization as LV
     import FastTransforms
     using Random
 
     # sampling method of FODF
-    export FibonacciSH, ComputeAllODF
-    export ODFData, TMC, Cone, sample_odf, sample, init
-    export Probabilistic, Rejection, Deterministic, Diffusion, Connectivity
+    export DirectSH, PreComputeAllFOD
+    export FODData, TMC, Cone, sample, init
+    export Probabilistic, Deterministic, Diffusion, Connectivity
     export save_streamlines
 
     # plotting
-    export plot_streamlines!, plot_odf, plot_odf!
+    export plot_streamlines!, plot_fod, plot_fod!
 
     include("plot.jl")
     include("tmc.jl")

@@ -1,9 +1,11 @@
 module MakieExt
     using Makie, Tractography, DocStringExtensions, LinearAlgebra, StaticArrays, Accessors
+    import Quickhull
+
     import Tractography: add_frame!,
                            plot_streamlines!, 
-                           plot_odf!,
-                           plot_odf,
+                           plot_fod!,
+                           plot_fod,
                            plot_slice,
                            plot_slice!,
                            transform,

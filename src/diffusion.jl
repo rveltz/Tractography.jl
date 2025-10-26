@@ -22,13 +22,13 @@ function init(model::TMC{𝒯, DirectSH},
                 n_sphere = 0) where {𝒯, Talg <: AbstractSDESampler}
     ni =  𝒯.(get_array(model))
     cache_cpu = TMCCache(; n_sphere, angles = 0, lmax = get_lmax(model), dΩ = zero(𝒯))
-    odf = permutedims(ni, (4, 1, 2, 3))
-    if is_normalized(model.odfdata)
-        odf ./= 𝒯(sqrt(4pi))
+    fod = permutedims(ni, (4, 1, 2, 3))
+    if is_normalized(model.foddata)
+        fod ./= 𝒯(sqrt(4pi))
     end
 
     ThreadedCache(
-        𝒯ₐ(odf),
+        𝒯ₐ(fod),
         𝒯ₐ(zeros(𝒯,0,0,0,0)),
         𝒯ₐ(zeros(𝒯,0,0,0,0)),
         nothing,
@@ -39,7 +39,7 @@ function init(model::TMC{𝒯, DirectSH},
     )
 end
 
-function _init(model::TMC{𝒯, PreComputeAllODF}, 
+function _init(model::TMC{𝒯, PreComputeAllFOD}, 
                 alg::AbstractSDESampler; 
                 n_sphere = 400) where 𝒯
     # we want to differentiate wrt (θ,ϕ) the expression mollifier(fodf(θ,ϕ))
@@ -54,7 +54,7 @@ function _init(model::TMC{𝒯, PreComputeAllODF},
     ∂θYₗₘ = get_vector_of_sh(angles, lmax, 1)
     ∂ϕYₗₘ = get_vector_of_sh(angles, lmax, 2)
 
-    # compute all ODF
+    # compute all FOD
     nx, ny, nz, nt = size(model)
     ni =  get_array(model)
     ni_v = 𝒯.(reshape(ni, nx*ny*nz, nt)) # vector version
@@ -65,17 +65,17 @@ function _init(model::TMC{𝒯, PreComputeAllODF},
     # compute all ∂θODF
     ∂θY = 𝒯.(∂θYₗₘ)
     odf_vt = @time_debug "all ∂θodf:" ni_v * ∂θY';
-    d_mollifier_odf_v = @tturbo @. d_mollifier(odf_v)
-    @time_debug "Apply mollifier" @tturbo @. odf_vt = d_mollifier_odf_v * odf_vt
+    d_mollifier_odf_v = LV.@tturbo @. d_mollifier(odf_v)
+    @time_debug "Apply mollifier" LV.@tturbo @. odf_vt = d_mollifier_odf_v * odf_vt
     ∂θodf = reshape(odf_vt, nx, ny, nz, na);
 
     # compute all ∂ϕODF
     ∂ϕY = 𝒯.(∂ϕYₗₘ)
     odf_vp = @time_debug "all ∂ϕodf:" ni_v * ∂ϕY';
-    @time_debug "Apply mollifier" @tturbo @. odf_vp = d_mollifier_odf_v * odf_vp
+    @time_debug "Apply mollifier" LV.@tturbo @. odf_vp = d_mollifier_odf_v * odf_vp
     ∂ϕodf = reshape(odf_vp, nx, ny, nz, na);
 
-    @time_debug "Apply mollifier" @tturbo @. odf = mollifier(odf)
+    @time_debug "Apply mollifier" LV.@tturbo @. odf = mollifier(odf)
     @reset cache.odf   = @time_debug"permutedims" permutedims(odf,   (4, 1, 2, 3))
     @reset cache.∂θodf = permutedims(∂θodf, (4, 1, 2, 3))
     @reset cache.∂ϕodf = permutedims(∂ϕodf, (4, 1, 2, 3))
@@ -94,7 +94,7 @@ function init(model::TMC{𝒯},
     _is_on_cpu = cache_cpu.odf isa 𝒯ₐ
     ∫odf = sum(cache_cpu.odf, dims = 1)[1, :, :, :]
     # here, we have to be careful because the mollifier attributes non zero probabilities
-    map!(x -> x > 0 ? x : zero(x), ∫odf, @views model.odfdata.data.raw[:,:,:,1])
+    map!(x -> x > 0 ? x : zero(x), ∫odf, @views model.foddata.data.raw[:,:,:,1])
 
     ThreadedCache(
             _is_on_cpu ? cache_cpu.odf   : 𝒯ₐ(cache_cpu.odf),
@@ -112,15 +112,15 @@ function sample!(streamlines,
                 streamlines_length::AbstractArray{UInt32, 1},
                 model::TMC{𝒯}, 
                 cache::AbstractCache, 
-                alg::Union{Talg1, Connectivity{ Talg2}},
+                alg::Union{AbstractSDESampler, Connectivity{ <: AbstractSDESampler}},
                 seeds;
-                maxodf_start::Bool = false,
+                maxfod_start::Bool = false,
                 reverse_direction::Bool = false,
                 nthreads = 8,
                 gputhreads = 512,
                 nₜ = size(streamlines, 2),
                 saveat::Int = 1,
-                𝒯ₐ = Array) where {𝒯, Talg1 <: AbstractSDESampler, Talg2 <: AbstractSDESampler}
+                𝒯ₐ = Array) where {𝒯}
     Nmc = size(seeds, 2)
     if size(seeds, 1) != 6 
         error("The initial positions must be passed as an 6 x N array.")
@@ -148,9 +148,9 @@ function sample!(streamlines,
                             cache.∂ϕodf,
                             cache.∫odf,
                             cache.directions,
-                            model.odfdata.transform,
+                            model.foddata.transform,
                             Int32(nₜ),
-                            maxodf_start,
+                            maxfod_start,
                             reverse_direction,
                             model.proba_min,
                             abs(model.Δt),
@@ -159,7 +159,7 @@ function sample!(streamlines,
                             get_γ_noise(alg),
                             cache.dΩ,
                             nx, ny, nz,
-                            Val(model.evaluation_algo isa PreComputeAllODF),
+                            Val(model.evaluation_algo isa PreComputeAllFOD),
                             Val(~(alg isa Connectivity)),
                             ndrange = Nmc
                             )
@@ -178,7 +178,7 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
                             @Const(directions::AbstractMatrix{𝒯}),
                             @Const(tf),
                             @Const(nₜ),
-                            @Const(maxodf_start),
+                            @Const(maxfod_start),
                             @Const(reverse_direction),
                             @Const(proba_min::𝒯),
                             @Const(dt::𝒯),
@@ -205,7 +205,7 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
     # current index of angle
     ind_u::Int32 = 1
 
-    if maxodf_start && precomputed_odf
+    if maxfod_start && precomputed_odf
         voxel₁, voxel₂, voxel₃ = get_voxel(tf, (x₁, x₂, x₃))
         ind_u = _device_argmax(fodf, voxel₁, voxel₂, voxel₃, n_angles)
         u₁ = directions[ind_u, 1]
@@ -219,7 +219,7 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
         u₃ = -u₃
     end
 
-    if (reverse_direction || ~maxodf_start) && precomputed_odf
+    if (reverse_direction || ~maxfod_start) && precomputed_odf
         ind_u = _device_get_angle(directions, u₁, u₂, u₃, n_angles)
     end
 

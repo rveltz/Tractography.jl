@@ -13,7 +13,7 @@ const TG = Tractography
 
 # define the model for TMC
 model = TMC(Δt = 0.125f0,
-            odfdata = ODFData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
+            foddata = FODData((@__DIR__) * "/../../examples/fod-FC.nii.gz"),
             cone = Cone(45f0),
             proba_min = 0.005f0,
             )
@@ -66,10 +66,7 @@ CUDA.@time TG.sample!(
             model,
             cache_g,
             Probabilistic(),
-            # Deterministic(),
             seeds;
-            # maxodf_start = true,
-            # reverse_direction = true,
             gputhreads = 1024,
             );
 ```

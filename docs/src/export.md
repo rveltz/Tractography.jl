@@ -1,6 +1,6 @@
-# Saving `tck`
+# Saving `tck` files
 
-Once a tractogram has been computed, it can be exported to `tck` file using `nibabel`. A convenience function is provided to ease this operation:
+Once a tractogram has been computed, it can be exported to a `tck` file using the python library `nibabel`. A convenience function is provided to ease this operation:
 
 ```julia
 import Tractography as TG

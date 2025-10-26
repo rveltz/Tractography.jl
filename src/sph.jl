@@ -3,7 +3,7 @@ import ForwardDiff
 """
 $(SIGNATURES)
 
-Get the ODF vector length corresponding to a given lmax.
+Get the FOD vector length corresponding to a given lmax.
 This length is the result of
 
 ```
@@ -15,14 +15,14 @@ n
 # gives sequence 1  6  15  28  45  66  91  120
 ```
 """
-get_odf_length(lmax) = div(lmax^2, 2) + div(3*lmax, 2) + 1
+get_fod_length(lmax) = div(lmax^2, 2) + div(3*lmax, 2) + 1
 
 """
 $(SIGNATURES)
 
-Get the lmax from the ODF length, ie `size(data, 4)`. The is the inverse mapping of `get_odf_length`.
+Get the lmax from the ODF length, ie `size(data, 4)`. The is the inverse mapping of `get_fod_length`.
 """
-get_lmax_from_odf_length(n) = Int(-3/2 + sqrt(1 + 8*n)/2)
+get_lmax_from_fod_length(n) = Int(-3/2 + sqrt(1 + 8*n)/2)
 
 """
 $(SIGNATURES)
@@ -66,7 +66,7 @@ Evaluate the real orthonormal spherical harmonics Yₗₘ(θ, ϕ) for `(θ, Φ) 
 
 It returns a 2d array `Yₗₘ[(θ, ϕ), index]`.
 
-It is mainly used to cache the harmonics Yₗₘ for later use (evaluation of ODF).
+It is mainly used to cache the harmonics Yₗₘ for later use (evaluation of FOD).
 
 # Arguments
 - `angles` a vector of tuples
@@ -75,7 +75,7 @@ It is mainly used to cache the harmonics Yₗₘ for later use (evaluation of OD
 > The storage convention is explained in https://mrtrix.readthedocs.io/en/dev/concepts/spherical_harmonics.html#storage-conventions.
 """
 function get_vector_of_sh(angles::AbstractVector{Tuple{𝒯, 𝒯}}, lmax, der::Int = 0; outer_f = identity) where 𝒯
-    odf_length = get_odf_length(lmax)
+    odf_length = get_fod_length(lmax)
     Yₗₘ = zeros(𝒯, length(angles), odf_length)
     for (i, (θ, ϕ) ) in pairs(angles)
         n = 1

@@ -7,7 +7,7 @@ $(TYPEDEF)
 
 The evaluation of spherical harmonics is done on the fly. Requires little memory.
 
-See also `PreComputeAllODF`
+See also `PreComputeAllFOD`
 """
 struct DirectSH <: AbstractSPHEvaluation end
 
@@ -29,7 +29,7 @@ Spherical harmonics evaluation based on Fibonacci sampling. All ODF are pre-comp
 ## Details
 If you have `na` angles for sampling the unit sphere and the data is of size `(nx, ny, nz, nsph)`, it yields a matrix of dimensions `(nx, ny, nz, na)`.
 """
-struct PreComputeAllODF <: AbstractSPHEvaluation end
+struct PreComputeAllFOD <: AbstractSPHEvaluation end
 ####################################################################################################
 # streamlines tracking algorithms
 abstract type AbstractSampler end
@@ -59,7 +59,7 @@ _get_alg(alg::Connectivity) = alg.alg
 """
 $(TYPEDEF)
 
-Tractography sampling performed with the cumulative sum distribution. Can be used with `FibonacciSH` and `PreComputeAllODF`.
+Tractography sampling performed with the cumulative sum distribution. Can be used with `FibonacciSH` and `PreComputeAllFOD`.
 
 # Constructor
 
@@ -70,7 +70,7 @@ struct Probabilistic <: AbstractNotPureRejectionSampler end
 """
 $(TYPEDEF)
 
-Tractography sampling performed with the argmax function. Can be used with `FibonacciSH` and `PreComputeAllODF`.
+Tractography sampling performed with the argmax function. Can be used with `FibonacciSH` and `PreComputeAllFOD`.
 """
 struct Deterministic <: DeterministicSampler end
 
@@ -197,10 +197,10 @@ $(TYPEDFIELDS)
 @with_kw_noshow struct TMC{𝒯, 𝒯alg <: AbstractSPHEvaluation, 𝒯d, 𝒯C, 𝒯mol}
     "Step size of the TMC."
     Δt::𝒯 = 0.1f0
-    "Spherical harmonics evaluation algorithm. Can be `FibonacciSH(), PreComputeAllODF()`."
-    evaluation_algo::𝒯alg = PreComputeAllODF()
+    "Spherical harmonics evaluation algorithm. Can be `FibonacciSH(), PreComputeAllFOD()`."
+    evaluation_algo::𝒯alg = PreComputeAllFOD()
     "ODF data from nifti file. Must be the list of ODF in the base of spherical harmonics. Hence, it should be an (abstract) 4d array."
-    odfdata::𝒯d = nothing
+    foddata::𝒯d = nothing
     "Cone function to restrict angle diffusion. You can use a `Cone` or a custom function `(d1, d2) -> return_a_boolean`."
     cone::𝒯C = Cone(90f0)
     "Probability below which we stop tracking."
@@ -208,10 +208,11 @@ $(TYPEDFIELDS)
     "Mollifier, used to make the fodf non negative. During odf evaluation, we effectively use `mollifier(fodf[angle,i,j,k])`."
     mollifier::𝒯mol = max_mollifier
 end
-@inline getdata(model::TMC) = model.odfdata
+@inline getdata(model::TMC) = model.foddata
 Base.size(model::TMC) = size(getdata(model))
 Base.eltype(model::TMC{𝒯}) where 𝒯 = 𝒯
 @inline get_lmax(model::TMC) = get_lmax(getdata(model))
+
 """
 $(SIGNATURES)
 
@@ -230,12 +231,12 @@ function Base.show(io::IO, model::TMC)
     end
     println(io, " ├─ mollifier           = ", model.mollifier)
     println(io, " ├─ evaluation of SH    = ", model.evaluation_algo)
-    if model.odfdata isa ODFData
+    if model.foddata isa FODData
         println(io, " └─ data : (lmax = $(get_lmax(model)))")
-        show(io, model.odfdata; prefix = "      ")
+        show(io, model.foddata; prefix = "      ")
     end
-    if model.odfdata isa AbstractArray
-        println(io, " └─ data                = ", typeof(model.odfdata))
+    if model.foddata isa AbstractArray
+        println(io, " └─ data                = ", typeof(model.foddata))
     end
 end
 
@@ -254,7 +255,7 @@ function _apply_mask!(model, mask)
         nx, ny, nz, nsh = size(model)
         data = _get_array(getdata(model))
         for k = 1:nsh
-            @tturbo data[:, :, :, k] .*= mask
+            LV.@tturbo data[:, :, :, k] .*= mask
         end
     end
 end

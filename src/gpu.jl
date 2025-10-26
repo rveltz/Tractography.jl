@@ -48,7 +48,7 @@ Sample the TMC `model` inplace by overwriting `result`. This requires very littl
 - `seeds` matrix of size `6 x Nmc` where `Nmc` is the number of Monte-Carlo simulations to be performed.
 
 ## Optional arguments
-- `maxodf_start::Bool` for each locations, use direction provided by the argmax of the ODF.
+- `maxfod_start::Bool` for each locations, use direction provided by the argmax of the ODF.
 - `reverse_direction::Bool` reverse initial direction.
 - `nthreads::Int = 8` number of threads on CPU.
 - `gputhreads::Int = 512` number of threads on GPU.
@@ -59,7 +59,7 @@ function sample!(streamlines,
                   cache::AbstractCache, 
                   alg,
                   seeds;
-                  maxodf_start::Bool = false,
+                  maxfod_start::Bool = false,
                   reverse_direction::Bool = false,
                   nthreads = 8,
                   gputhreads = 512,
@@ -83,8 +83,8 @@ function sample!(streamlines,
                     angles = cache.angles,
                     directions = cache.directions,
                     cone = cache.cone,
-                    transform = model.odfdata.transform,
-                    maxodf_start,
+                    transform = model.foddata.transform,
+                    maxfod_start,
                     reverse_direction,
                     proba_min = model.proba_min,
                     dΩ = cache.dΩ,
@@ -103,7 +103,7 @@ function launch_kernel(nthreads = 8;
                         directions::AbstractMatrix{𝒯},
                         cone::AbstractMatrix{𝒯},
                         transform,
-                        maxodf_start,
+                        maxfod_start,
                         reverse_direction,
                         proba_min::𝒯,
                         dΩ::𝒯,
@@ -140,7 +140,7 @@ function launch_kernel(nthreads = 8;
                             cone,
                             transform,
                             Int32(nₜ),
-                            maxodf_start,
+                            maxfod_start,
                             reverse_direction,
                             proba_min,
                             dΩ,
@@ -165,7 +165,7 @@ KA.@kernel inbounds=false function _sample_kernel!(
                             @Const(cone::AbstractMatrix{𝒯}),
                             @Const(tf),
                             nₜ::Int32,
-                            maxodf_start::Bool,
+                            maxfod_start::Bool,
                             reverse_direction::Bool,
                             proba_min::𝒯,
                             dΩ::𝒯,
@@ -192,7 +192,7 @@ KA.@kernel inbounds=false function _sample_kernel!(
     ind_max::UInt32 = 0
     voxel₁ = voxel₂ = voxel₃ = Int32(0)
 
-    if maxodf_start
+    if maxfod_start
         voxel₁, voxel₂, voxel₃ = get_voxel(tf, (x₁, x₂, x₃))
         ind_u = _device_argmax(fodf, voxel₁, voxel₂, voxel₃, n_angles)
         u₁ = directions[ind_u, 1]
@@ -206,7 +206,7 @@ KA.@kernel inbounds=false function _sample_kernel!(
         u₃ = -u₃
     end
 
-    if reverse_direction || ~maxodf_start
+    if reverse_direction || ~maxfod_start
         ind_u = _device_get_angle(directions, u₁, u₂, u₃, n_angles)
     end
 

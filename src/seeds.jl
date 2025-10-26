@@ -4,13 +4,13 @@ $(TYPEDSIGNATURES)
 Generate seeds from orientation distribution functions.
 
 ## Keyword arguments
-- `maxodf_start = false` The seeds are generated in voxels with non-zero average ODFs with the orientations importance sampled.
-- `maxodf_start = false` The seeds are generated in voxels with non-zero average ODFs with the orientations corresponding to the maximum probability.
+- `maxfod_start = false` The seeds are generated in voxels with non-zero average FOD with the orientations importance sampled.
+- `maxfod_start = false` The seeds are generated in voxels with non-zero average FOD with the orientations corresponding to the maximum probability.
 """
-function from_odf(model::TMC{𝒯}, n_seeds::Int; n_sphere = 1000, maxodf_start = false) where {𝒯}
+function from_fod(model::TMC{𝒯}, n_seeds::Int; n_sphere = 1000, maxfod_start = false) where {𝒯}
     seeds = zeros(𝒯, 6, n_seeds)
-    odfs = _get_array(model.odfdata)
-    tf = model.odfdata.transform
+    odfs = _get_array(model.foddata)
+    tf = model.foddata.transform
 
     non_zeros = @views findall(x -> x>0, odfs[:, :, :, 1])
     n_zeros = length(non_zeros)
@@ -32,7 +32,7 @@ function from_odf(model::TMC{𝒯}, n_seeds::Int; n_sphere = 1000, maxodf_start 
         end
         # sample direction, slow because not row major
         @views mul!(odf, cache.Yₗₘ, odfs[I[1], I[2], I[3], :])
-        if maxodf_start
+        if maxfod_start
             ind_u = argmax(odf)
         else
             t = rand(𝒯) * 𝒯(sum(odf))
@@ -60,7 +60,7 @@ function from_mask(model::TMC{𝒯}, mask::AbstractArray{Bool, 3}, n_seeds::Int)
     seeds = zeros(𝒯, 6, n_seeds)
     non_zeros = findall(mask)
     n_zeros = length(non_zeros)
-    tf = model.odfdata.transform
+    tf = model.foddata.transform
 
     if n_zeros == 0
         error("All fODFs are zero!")
