@@ -9,6 +9,15 @@ A complete streamline generation workflow typically involves the following steps
 The `Tractography.jl` package focuses on steps **2** and **3**.  
 Step **1** — estimating FODs — should be performed using a dedicated library, such as [Fibers.jl](https://github.com/lincbrain/Fibers.jl).
 
+
+---
+
+## FOD specification
+
+The FOD can be supplied to the Tractography Markov Chain (TMC) by the keyword argument `foddata`. See [`Tractography.TMC`](@ref) for more details. Now, you can pass to `foddata` a `Tractography.FODData` object (see [`Tractography.FODData`](@ref) for more information), which can be created:
+- from a NIfTI file using the simplified `Tractography.FODData` constructor.
+- from an `AbstractArray` object using directly the `Tractography.FODData` constructor.
+
 ---
 
 ## Seed Generation

@@ -5,7 +5,7 @@ Generate seeds from orientation distribution functions.
 
 ## Keyword arguments
 - `maxfod_start = false` The seeds are generated in voxels with non-zero average FOD with the orientations importance sampled.
-- `maxfod_start = false` The seeds are generated in voxels with non-zero average FOD with the orientations corresponding to the maximum probability.
+- `maxfod_start = true` The seeds are generated in voxels with non-zero average FOD with the orientations corresponding to the maximum probability.
 """
 function from_fod(model::TMC{𝒯}, n_seeds::Int; n_sphere = 1000, maxfod_start = false) where {𝒯}
     seeds = zeros(𝒯, 6, n_seeds)

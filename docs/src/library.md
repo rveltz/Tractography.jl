@@ -19,32 +19,6 @@ Tractography.from_fod
 Tractography.from_mask
 ```
 
-## Misc
-
-```@docs
-Tractography.Cone
-```
-
-```@docs
-Tractography._apply_mask!
-```
-
-```@docs
-Tractography.save_streamlines
-```
-
-```@docs
-Tractography.Exp𝕊²
-```
-
-```@docs
-Tractography.spherical_to_euclidean
-```
-
-```@docs
-Tractography.euclidean_to_spherical
-```
-
 ## [Spherical harmonics evaluation strategy](@id sheval)
 
 ```@docs
@@ -58,7 +32,11 @@ Tractography.PreComputeAllFOD
 ## Models
 
 ```@docs
-TMC
+Tractography.FODData
+```
+
+```@docs
+Tractography.TMC
 ```
 
 ## Algorithms
@@ -111,3 +89,28 @@ Tractography.plot_fod!
 Tractography.plot_slice
 ```
 
+## Misc
+
+```@docs
+Tractography.Cone
+```
+
+```@docs
+Tractography._apply_mask!
+```
+
+```@docs
+Tractography.save_streamlines
+```
+
+```@docs
+Tractography.Exp𝕊²
+```
+
+```@docs
+Tractography.spherical_to_euclidean
+```
+
+```@docs
+Tractography.euclidean_to_spherical
+```
