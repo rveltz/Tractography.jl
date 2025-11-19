@@ -134,6 +134,7 @@ function sample!(streamlines,
     @debug size(streamlines) nₜ Nmc nthreads gputhreads model.Δt alg
 
     _, nx, ny, nz = size(cache.odf)
+    streamlines_length .= nₜ ÷ saveat
     # launch gpu kernel
     backend = KA.get_backend(seeds)
     nth = backend isa KA.GPU ? gputhreads : nthreads

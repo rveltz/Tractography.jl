@@ -272,7 +272,6 @@ KA.@kernel inbounds=false function _sample_kernel!(
             else
                 # we stop tracking then
                 continue_tracking = false
-                streamlines_length[nₙₘ] = iₜ - 1
                 if ~save_full_streamline
                     streamlines[1, 2, nₙₘ] = x₁
                     streamlines[2, 2, nₙₘ] = x₂
