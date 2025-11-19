@@ -73,9 +73,9 @@ function sample(model::TMC{𝒯},
                 saveat::Int = 1,
                 ) where {𝒯}
     if size(seeds, 1) != 6
-        error("The seeds dimension must be 6 x nseed")
+        error("The seeds dimension must be 6 x n_seed")
     end
-    streamlines = similar(seeds, 3, (alg isa Connectivity ? 2 : div(nt, saveat)), size(seeds, 2))
+    streamlines = similar(seeds, 5, (alg isa Connectivity ? 2 : div(nt, saveat)), size(seeds, 2))
     streamlines_length = zeros(UInt32, size(seeds, 2))
     cache = init(model, alg; n_sphere)
     if ~isnothing(mask)

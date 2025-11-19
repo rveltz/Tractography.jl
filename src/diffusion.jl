@@ -188,7 +188,7 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
                             @Const(dΩ),
                             nx, ny, nz,
                             _precomputed_odf::Val{precomputed_odf},
-                            save_full_streamlines::Val{save_full_streamline},
+                            ::Val{save_full_streamline},
                             ) where {𝒯, save_full_streamline, precomputed_odf}
     # index of the streamline being computed
     nₙₘ = @index(Global)
@@ -204,10 +204,12 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
 
     # current index of angle
     ind_u::Int32 = 1
+    # streamline length
+    t_length::UInt32 = 1
 
     if maxfod_start && precomputed_odf
-        voxel₁, voxel₂, voxel₃ = get_voxel(tf, (x₁, x₂, x₃))
-        ind_u = _device_argmax(fodf, voxel₁, voxel₂, voxel₃, n_angles)
+        voxel_index₁, voxel_index₂, voxel_index₃ = get_voxel_index(tf, (x₁, x₂, x₃))
+        ind_u = _device_argmax(fodf, voxel_index₁, voxel_index₂, voxel_index₃, n_angles)
         u₁ = directions[ind_u, 1]
         u₂ = directions[ind_u, 2]
         u₃ = directions[ind_u, 3]
@@ -223,8 +225,9 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
         ind_u = _device_get_angle(directions, u₁, u₂, u₃, n_angles)
     end
 
-    inside_brain::Bool = true
+    inside_image::Bool = true
     continue_tracking::Bool = true
+    voxel_index₁ = voxel_index₂ = voxel_index₃ = Int32(0)
 
     streamlines[1, 1, nₙₘ] = x₁
     streamlines[2, 1, nₙₘ] = x₂
@@ -236,35 +239,38 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
     θᵢ, ϕᵢ = euclidean_to_spherical(u₁, u₂, u₃)
     iₛₐᵥₑ = one(UInt32)
 
+    # Riemannian Langevin algorithm [1]
+    # Bharath, Karthik, Karthik Bharath, Alexander Lewis, et al. Sampling and Estimation on Manifolds Using the Langevin Diﬀusion. n.d.
+    # X_{n+1}^h =\exp_{X_n^h}(  h/2⋅∇ E(X_n^h) + √h ⋅ g^{-1/2}(X_n^h) ⋅ ξ_{n+1})
+
+
     for iₜ = UInt32(2):nₜ
         P = SA.SVector(x₁, x₂, x₃)
         D = SA.SVector(u₁, u₂, u₃)
-        # x is in native space, we want it in voxel space
-        voxel₁, voxel₂, voxel₃ = get_voxel(tf, P)
+        # x is in native space
+        (voxel_index₁, voxel_index₂, voxel_index₃) = get_voxel_index(tf, (x₁, x₂, x₃))
 
-        inside_brain = (0 < voxel₁ <= nx) &&
-                       (0 < voxel₂ <= ny) &&
-                       (0 < voxel₃ <= nz)
-
-        continue_tracking = inside_brain && continue_tracking
+        inside_image = in_image(voxel_index₁, voxel_index₂, voxel_index₃, nx, ny, nz)
+        continue_tracking = inside_image && continue_tracking
+        t_length += continue_tracking
 
         if continue_tracking
             if precomputed_odf
                 ind_u = _device_get_angle(directions, u₁, u₂, u₃, n_angles)
                 # !! Careful here, we need to have a probability: F / ∫F
-                F  =  fodf[ind_u, voxel₁, voxel₂, voxel₃]
-                Fθ = ∂θodf[ind_u, voxel₁, voxel₂, voxel₃]
-                Fϕ = ∂ϕodf[ind_u, voxel₁, voxel₂, voxel₃]
-                ∫F =  ∫odf[voxel₁, voxel₂, voxel₃]
+                F  =  fodf[ind_u, voxel_index₁, voxel_index₂, voxel_index₃]
+                Fθ = ∂θodf[ind_u, voxel_index₁, voxel_index₂, voxel_index₃]
+                Fϕ = ∂ϕodf[ind_u, voxel_index₁, voxel_index₂, voxel_index₃]
+                ∫F =  ∫odf[voxel_index₁, voxel_index₂, voxel_index₃]
                 st, ct = sincos(θᵢ)
                 sp, cp = sincos(ϕᵢ)
             else
-                F, Fϕ, Fθ = ishtmtx_dot(ϕᵢ, θᵢ, @view fodf[:, voxel₁, voxel₂, voxel₃])
+                F, Fϕ, Fθ = ishtmtx_dot(ϕᵢ, θᵢ, @view fodf[:, voxel_index₁, voxel_index₂, voxel_index₃])
                 ∂ = ∂softplus(F, 100f0)
                 F =  softplus(F, 100f0)
                 Fθ *= ∂
                 Fϕ *= ∂
-                ∫F = fodf[1, voxel₁, voxel₂, voxel₃]
+                ∫F = fodf[1, voxel_index₁, voxel_index₂, voxel_index₃]
             end
             continue_tracking = ∫F > proba_min # recall ∫F ∈ [0, 1]
         end
@@ -276,7 +282,7 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
             # recall D = (st * cp, st * sp, ct), error ~ 1e-7
 
             eθ = SA.SVector(ct * cp, ct * sp, -st )
-            eϕ = SA.SVector(-sp, cp, 0) # remove the sin(θ) with Fϕ
+            eϕ = SA.SVector(-sp, cp, 0) # remove the sin(θ) from eϕ because we removed it in Fϕ
 
             drift = Fθ * eθ + Fϕ * eϕ
 
@@ -291,7 +297,7 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
                 tangent = (γ * hx / F) * drift
             else
                 noise = randn(𝒯) * eθ + randn(𝒯) * eϕ
-                tangent = (γ * hx / F) * drift + (sqrt(2γ * hx) * γn) * noise
+                tangent = (γ * hx / F) * drift + sqrt(2γ * hx * γn) * noise
             end
 
             # Geometric-Euler scheme
@@ -305,7 +311,7 @@ KA.@kernel inbounds=false function _sample_kernel_diffusion!(
             x₂ += hx * u₂
             x₃ += hx * u₃
         else
-            streamlines_length[nₙₘ] = iₛₐᵥₑ - 1
+            streamlines_length[nₙₘ] = t_length ÷ saveat
             if ~save_full_streamline
                 streamlines[1, 2, nₙₘ] = x₁
                 streamlines[2, 2, nₙₘ] = x₂

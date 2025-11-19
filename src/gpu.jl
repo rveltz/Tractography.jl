@@ -67,6 +67,7 @@ function sample!(streamlines,
                   saveat::Int = 1,
                   𝒯ₐ = Array) where {𝒯}
     _, nx, ny, nz = size(cache.odf)
+    streamlines_length .= nₜ
     if isnothing(cache.cone)
         error("You did not pass a cone function to TMC!")
     end
@@ -125,10 +126,10 @@ function launch_kernel(nthreads = 8;
     end
     @debug "" size(streamlines) nthreads gputhreads size(odf) nx ny nz alg
 
-    # launch gpu kernel
+    # launch cpu / gpu kernel
     backend = KA.get_backend(seeds)
-    nth = backend isa KA.GPU ? gputhreads : nthreads
-    kernel! = _sample_kernel!(backend, nth)
+    _nthreads = backend isa KA.GPU ? gputhreads : nthreads
+    kernel! = _sample_kernel!(backend, _nthreads)
     @time "kernel " kernel!(
                             streamlines, 
                             streamlines_length,
@@ -164,25 +165,20 @@ KA.@kernel inbounds=false function _sample_kernel!(
                             @Const(directions::AbstractMatrix{𝒯}),
                             @Const(cone::AbstractMatrix{𝒯}),
                             @Const(tf),
-                            nₜ::Int32,
-                            maxfod_start::Bool,
-                            reverse_direction::Bool,
-                            proba_min::𝒯,
-                            dΩ::𝒯,
-                            Δt::𝒯,
-                            nx, ny, nz,
-                            save_full_streamlines::Val{save_full_streamline}
+                            @Const(nₜ::Int32),
+                            @Const(maxfod_start::Bool),
+                            @Const(reverse_direction::Bool),
+                            @Const(proba_min::𝒯),
+                            @Const(dΩ::𝒯),
+                            @Const(Δt::𝒯),
+                            @Const(nx), @Const(ny), @Const(nz),
+                            ::Val{save_full_streamline}
                             ) where {𝒯, save_full_streamline}
     # index of the streamline being computed
     nₙₘ = @index(Global)
-    @assert size(seeds, 1) == 6
 
-    x₁ = seeds[1, nₙₘ]
-    x₂ = seeds[2, nₙₘ]
-    x₃ = seeds[3, nₙₘ]
-    u₁ = seeds[4, nₙₘ]
-    u₂ = seeds[5, nₙₘ]
-    u₃ = seeds[6, nₙₘ]
+    x₁ = seeds[1, nₙₘ]; x₂ = seeds[2, nₙₘ]; x₃ = seeds[3, nₙₘ]
+    u₁ = seeds[4, nₙₘ]; u₂ = seeds[5, nₙₘ]; u₃ = seeds[6, nₙₘ]
 
     n_angles = UInt32(size(fodf, 1))
 
@@ -190,14 +186,21 @@ KA.@kernel inbounds=false function _sample_kernel!(
     ind_u::UInt32 = 1
     ind_u0::UInt32 = 1
     ind_max::UInt32 = 0
-    voxel₁ = voxel₂ = voxel₃ = Int32(0)
+    # streamline length
+    t_length::UInt32 = 1
+
+    inside_image::Bool = true
+    continue_tracking::Bool = true
+
+    total_proba = proba = proba0 = cone_c = zero(𝒯)
+    conditioned_proba = proba_max = zero(𝒯)
+
+    voxel_index₁ = voxel_index₂ = voxel_index₃ = Int32(0)
 
     if maxfod_start
-        voxel₁, voxel₂, voxel₃ = get_voxel(tf, (x₁, x₂, x₃))
-        ind_u = _device_argmax(fodf, voxel₁, voxel₂, voxel₃, n_angles)
-        u₁ = directions[ind_u, 1]
-        u₂ = directions[ind_u, 2]
-        u₃ = directions[ind_u, 3]
+        voxel_index₁, voxel_index₂, voxel_index₃ = get_voxel_index(tf, (x₁, x₂, x₃))
+        ind_u = _device_argmax(fodf, voxel_index₁, voxel_index₂, voxel_index₃, n_angles)
+        u₁ = directions[ind_u, 1]; u₂ = directions[ind_u, 2]; u₃ = directions[ind_u, 3]
     end
 
     if reverse_direction
@@ -210,24 +213,16 @@ KA.@kernel inbounds=false function _sample_kernel!(
         ind_u = _device_get_angle(directions, u₁, u₂, u₃, n_angles)
     end
 
-    inside_brain::Bool = true
-    continue_tracking::Bool = true
-
     streamlines[1, 1, nₙₘ] = x₁
     streamlines[2, 1, nₙₘ] = x₂
     streamlines[3, 1, nₙₘ] = x₃
 
-    cone_c = zero(𝒯)
-
     for iₜ = 2:nₜ
-        # x is in native space, we want it in voxel space
-        voxel₁, voxel₂, voxel₃ = get_voxel(tf, (x₁, x₂, x₃))
+        # x is in native space
+        (voxel_index₁, voxel_index₂, voxel_index₃) = get_voxel_index(tf, (x₁, x₂, x₃))
 
-        inside_brain = 0 < voxel₁ <= nx &&
-                       0 < voxel₂ <= ny &&
-                       0 < voxel₃ <= nz
-
-        continue_tracking = inside_brain && continue_tracking
+        continue_tracking = continue_tracking && in_image(voxel_index₁, voxel_index₂, voxel_index₃, nx, ny, nz)
+        t_length += continue_tracking
 
         if continue_tracking
             # we compute the probabilities associated to the odf
@@ -235,8 +230,7 @@ KA.@kernel inbounds=false function _sample_kernel!(
             conditioned_proba = proba_max = zero(𝒯)
             ind_max = 0
             for i in 1:n_angles # use of axes prevents from optimization, better use 1:n
-                proba0 = fodf[i, voxel₁, voxel₂, voxel₃] # it is >= 0 already! 
-                # cone_c = (u₁ * directions[i, 1] + u₂ * directions[i, 2] + u₃ * directions[i, 3]) > cos(pi/4)
+                proba0 = fodf[i, voxel_index₁, voxel_index₂, voxel_index₃] # it is >= 0 already!
                 cone_c = cone[i, ind_u]
                 proba = proba0 * cone_c
                 # keep track of conditional probabilities
@@ -266,8 +260,7 @@ KA.@kernel inbounds=false function _sample_kernel!(
                     cw = zero(𝒯)
                     for nₐ = 1:n_angles
                         # compute proba
-                        proba0 = fodf[nₐ, voxel₁, voxel₂, voxel₃]
-                        # cone_c = (u₁ * directions[nₐ, 1] + u₂ * directions[nₐ, 2] + u₃ * directions[nₐ, 3]) > cos(pi/4)
+                        proba0 = fodf[nₐ, voxel_index₁, voxel_index₂, voxel_index₃]
                         cone_c = cone[nₐ, ind_u0]
                         cw += proba0 * cone_c
                         if cw >= t
@@ -276,7 +269,6 @@ KA.@kernel inbounds=false function _sample_kernel!(
                         end
                     end
                 end
-                
             else
                 # we stop tracking then
                 continue_tracking = false
@@ -305,16 +297,33 @@ KA.@kernel inbounds=false function _sample_kernel!(
             streamlines[3, iₜ, nₙₘ] = x₃
         end 
     end
+    streamlines_length[nₙₘ] = t_length
+end
+
+@inline function in_image(voxel_index₁::Integer, voxel_index₂::Integer, voxel_index₃::Integer, nx, ny, nz)
+    return 1 <= voxel_index₁ <= nx &&
+           1 <= voxel_index₂ <= ny &&
+           1 <= voxel_index₃ <= nz
 end
 
 @inline function get_voxel(tf::Transform, x_native)
-    # x is an native space, we want it in voxel space
-    x = transform_inv(tf, SA.SVector(x_native[1], x_native[2], x_native[3], 1))
-    # we use this hack instead of Int(round(...)) because Metal 
+    # x_native is an native space, we want it in voxel space
+    return transform_inv(tf, SA.SVector(x_native[1], x_native[2], x_native[3], 1))
+end
+
+@inline function get_voxel_index(x_voxel)
+    # we use the hack unsafe_trunc instead of Int(round(...)) because Metal 
     # doesn't provide a device-side allocator.
-    @inbounds voxel_index = (unsafe_trunc(UInt32, round(x[1], RoundNearest)) + 1,
-                             unsafe_trunc(UInt32, round(x[2], RoundNearest)) + 1,
-                             unsafe_trunc(UInt32, round(x[3], RoundNearest)) + 1)
+    # +1 is for Julia array indexing which starts at 1
+    @inbounds voxel_index = (unsafe_trunc(UInt32, round(x_voxel[1], RoundNearest) + 1),
+                             unsafe_trunc(UInt32, round(x_voxel[2], RoundNearest) + 1),
+                             unsafe_trunc(UInt32, round(x_voxel[3], RoundNearest) + 1))
+    return voxel_index
+end
+
+@inline function get_voxel_index(tf::Transform, x_native)
+    x = get_voxel(tf, x_native)
+    return get_voxel_index(x)
 end
 
 @inline function _device_argmax(fodf::AbstractArray{𝒯, 4}, voxel₁, voxel₂, voxel₃, n::UInt32) where {𝒯}

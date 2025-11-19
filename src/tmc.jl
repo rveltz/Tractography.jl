@@ -79,7 +79,7 @@ $(TYPEDEF)
 
 Tractography sampling performed with diffusive model. Basically, the streamlines (Xₜ)ₜ are solution of the SDE
 
-dXₜ = γ * drift(Xₜ) dt + γ_noise * √γ * dnoiseₜ
+dXₜ = γ⋅drift(Xₜ)⋅dt + √(2γ ⋅ γ_noise) ⋅ dnoiseₜ
 
 where
 
